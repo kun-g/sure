@@ -7,6 +7,9 @@
 # identified by their address alone, token kinds ("erc20", "spl") by their
 # contract/mint. It is what the partial unique indexes on
 # onchain_wallet_accounts key off.
+#
+# `quantity` is nil when the asset is offered for tracking before anything has
+# read the wallet, which only an account preview does.
 module Onchain
   Asset = Data.define(:kind, :symbol, :name, :decimals, :quantity, :contract, :notable) do
     # `notable` means the data source treats this as a real asset the holder

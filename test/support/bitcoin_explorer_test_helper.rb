@@ -8,11 +8,27 @@ module BitcoinExplorerTestHelper
   BIP84_ZPUB = "zpub6rFR7y4Q2AijBEqTUquhVz398htDFrtymD9xYYfG1m4wAcvPhXNfE3EfH1r1ADqtfSdVCToUG868RvUUkgDKf31mGDtKsAYz2oz2AGutZYs"
   # The same account with xpub version bytes, which state no script type.
   BIP84_XPUB = "xpub6CatWdiZiodmUeTDp8LT5or8nmbKNcuyvz7WyksVFkKB4RHwCD3XyuvPEbvqAQY3rAPshWcMLoP2fMFMKHPJ4ZeZXYVUhLv1VMrjPC7PW6V"
-  # Its first private key, published in BIP84.
+  # Its private half, published in BIP84.
   BIP84_ZPRV = "zprvAdG4iTXWBoARxkkzNpNh8r6Qag3irQB8PzEMkAFeTRXxHpbF9z4QgEvBRmfvqWvGp42t42nvgGpNgYSJA9iefm1yYNZKEm7z6qUWCroSQnE"
 
   def bitcoin_account(script_type = "p2wpkh")
     Onchain::BitcoinAccount.for(BIP84_XPUB).find { |account| account.script_type == script_type }
+  end
+
+  # A tracked account, the way the linking flow leaves it.
+  def create_bitcoin_account_row(item:, account: bitcoin_account, **attrs)
+    item.onchain_wallet_accounts.create!({
+      chain: Onchain::Chains::BITCOIN,
+      wallet_address: account.reference,
+      extended_public_key: account.extended_public_key,
+      script_type: account.script_type,
+      asset_kind: "native",
+      symbol: "BTC",
+      name: "Bitcoin",
+      decimals: 8,
+      quantity: 0,
+      currency: item.family.currency
+    }.merge(attrs))
   end
 
   # transactions: what each transaction says, newest first, as the API lists them.

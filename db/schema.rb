@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_21_110000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_23_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -1881,12 +1881,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_21_110000) do
     t.string "currency", null: false
     t.decimal "current_balance", precision: 19, scale: 4
     t.integer "decimals", default: 0, null: false
+    t.text "extended_public_key"
     t.jsonb "extra", default: {}, null: false
     t.string "name"
     t.uuid "onchain_wallet_item_id", null: false
     t.decimal "quantity", precision: 32, scale: 18, default: "0.0", null: false
     t.jsonb "raw_movements_payload"
     t.jsonb "raw_payload"
+    t.string "script_type"
     t.string "symbol", null: false
     t.datetime "updated_at", null: false
     t.string "wallet_address", null: false
@@ -1894,6 +1896,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_21_110000) do
     t.index ["onchain_wallet_item_id", "chain", "wallet_address", "contract_address"], name: "index_onchain_wallet_accounts_unique_spl", unique: true, where: "((asset_kind)::text = 'spl'::text)"
     t.index ["onchain_wallet_item_id", "chain", "wallet_address"], name: "index_onchain_wallet_accounts_on_item_and_address"
     t.index ["onchain_wallet_item_id", "chain", "wallet_address"], name: "index_onchain_wallet_accounts_unique_native", unique: true, where: "((asset_kind)::text = 'native'::text)"
+    t.check_constraint "(extended_public_key IS NULL) = (script_type IS NULL)", name: "chk_onchain_wallet_accounts_key_has_script_type"
     t.check_constraint "asset_kind::text = 'native'::text OR contract_address IS NOT NULL", name: "chk_onchain_wallet_accounts_token_has_contract"
     t.check_constraint "asset_kind::text = ANY (ARRAY['native'::character varying::text, 'erc20'::character varying::text, 'spl'::character varying::text])", name: "chk_onchain_wallet_accounts_known_asset_kind"
   end

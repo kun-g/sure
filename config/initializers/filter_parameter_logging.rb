@@ -18,6 +18,10 @@ Rails.application.config.filter_parameters += [
   # A device code redeems into tokens on its own, so it is a bearer credential in
   # transit; verification_uri_complete embeds the user code, hence all three.
   :device_code, :user_code, :verification_uri_complete,
+  # The wallet form takes whatever the user pastes, which may be a private key or
+  # a seed phrase by mistake, or an account key that lists all of their addresses.
+  # Encrypted columns filter themselves; this holds where encryption is not set up.
+  /\A(known_)?address\z/i, :extended_public_key,
   :bank_username, :bank_password, :security_answers, :captcha_input,
   # FinanceKit publisher bodies. Anchored: an unanchored :credential also hides
   # credential_id and has_*_credentials, and :events any key containing "events".

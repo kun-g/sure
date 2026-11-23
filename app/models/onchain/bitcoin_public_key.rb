@@ -29,8 +29,9 @@ module Onchain
     P2SH_VERSION = 0x05
 
     # By shape rather than by checksum: a mistyped private key is still a private
-    # key. BIP32 and SLIP-132 private prefixes of any network, and WIF.
-    PRIVATE_KEY_PATTERN = /\A\s*(?:(?i:[a-z]prv)|[5KL][1-9A-HJ-NP-Za-km-z]{50,51}\s*\z)/
+    # key. BIP32 and SLIP-132 private prefixes of any network, inside an output
+    # descriptor too, and WIF.
+    PRIVATE_KEY_PATTERN = /\b[xyztuvYZUV]prv[1-9A-HJ-NP-Za-km-z]|\A\s*[5KL][1-9A-HJ-NP-Za-km-z]{50,51}\s*\z/
 
     BASE58 = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
     CURVE = OpenSSL::PKey::EC::Group.new("secp256k1")

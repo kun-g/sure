@@ -3,7 +3,7 @@
 require "test_helper"
 
 class OnchainWalletItem::WalletLinkerTest < ActiveSupport::TestCase
-  include OnchainTestHelper
+  include OnchainTestHelper, BitcoinExplorerTestHelper
 
   setup do
     register_fake_chain!
@@ -29,6 +29,33 @@ class OnchainWalletItem::WalletLinkerTest < ActiveSupport::TestCase
 
     tracked = @item.onchain_wallet_accounts.sole
     assert tracked.account_provider.present?
+  end
+
+  test "linking an account keeps its key and script type with the row" do
+    account = bitcoin_account("p2sh_p2wpkh")
+
+    result = account_linker(account).link(snapshot: bitcoin_adapter.account_preview, selected_keys: [ "native" ])
+
+    assert_equal 1, result.created
+    row = @item.onchain_wallet_accounts.sole
+    assert_equal account.reference, row.wallet_address
+    assert_equal BIP84_XPUB, row.extended_public_key
+    assert_equal "p2sh_p2wpkh", row.script_type
+    assert_equal 0, row.quantity
+    assert_not_includes row.account.name, BIP84_XPUB
+  end
+
+  # The only row of the wallet is the one being replaced, and the key is on it.
+  test "revising an account whose Sure account is gone keeps its key" do
+    account = bitcoin_account
+    create_bitcoin_account_row(item: @item, account: account)
+
+    result = account_linker(account).revise(snapshot: bitcoin_adapter.account_preview, selected_keys: [ "native" ])
+
+    assert_equal 1, result.created
+    row = @item.onchain_wallet_accounts.sole
+    assert_equal BIP84_XPUB, row.extended_public_key
+    assert row.account_provider.present?
   end
 
   test "a row that still tracks an account is left alone" do
@@ -113,6 +140,13 @@ class OnchainWalletItem::WalletLinkerTest < ActiveSupport::TestCase
   end
 
   private
+    def bitcoin_adapter
+      Onchain::Chains.adapter_for(Onchain::Chains::BITCOIN)
+    end
+
+    def account_linker(account)
+      OnchainWalletItem::WalletLinker.new(@item, chain: Onchain::Chains::BITCOIN, address: account.reference, key_account: account)
+    end
 
     def revise(*assets)
       snapshot = Onchain::Snapshot.new(assets: assets, movements: [])

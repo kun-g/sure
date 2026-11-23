@@ -85,6 +85,11 @@ class OnchainWalletItem < ApplicationRecord
     onchain_wallet_accounts.for_wallet(chain, address)
   end
 
+  # The account a tracked wallet is followed by, or nil for a single address.
+  def key_account_for(chain, address)
+    accounts_for_wallet(chain, address).with_account_key.first&.key_account
+  end
+
   # { [chain, address] => [account, ...] } for the manage UI, ordered so the
   # native asset of each wallet comes first.
   def grouped_accounts
