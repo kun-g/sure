@@ -69,7 +69,9 @@ class Onchain::TronAdapter
   end
 
   # TronGrid's keyless tier serves one request per second, and history is up to
-  # twenty pages of them: far too slow for a screen that is waiting on the answer.
+  # twenty pages of them, plus one request per unlisted token for its decimals:
+  # far too slow for a screen that is waiting on the answer. This is one request.
+  # Unlisted tokens appear once a background sync has learned their decimals.
   def fetch_assets(address)
     read(address, history: false)
   end
@@ -86,7 +88,7 @@ class Onchain::TronAdapter
 
       wrap_provider_errors do
         account = provider.account(address) || { balance: 0, trc20: [] }
-        tokens = token_assets(account[:trc20])
+        tokens = token_assets(account[:trc20], new_lookups: history ? MAX_NEW_DECIMAL_LOOKUPS : 0)
         movements = history ? best_effort_movements { movements(address) } : []
 
         Onchain::Snapshot.new(
@@ -121,15 +123,18 @@ class Onchain::TronAdapter
     # removes the same tokens between two reads of an unchanged address. A token
     # whose decimals cannot be learned has no quantity to report; it counts as
     # not surfaced, which tells the importer it was not read rather than empty.
-    def token_assets(balances)
+    def token_assets(balances, new_lookups:)
       held = balances
         .select { |balance| raw_value(balance[:raw_amount]).positive? }
         .uniq { |balance| balance[:contract] }
         .sort_by { |balance| [ TRUSTED_TOKENS.key?(balance[:contract]) ? 0 : 1, balance[:contract] ] }
 
-      @new_lookups = 0
-      assets = held.first(Onchain::AssetBudget.tokens).filter_map { |balance| token_asset(balance) }
-      @assets_truncated = assets.size < held.size
+      @lookups_left = new_lookups
+      surfaced = held.first(Onchain::AssetBudget.tokens)
+      assets = surfaced.filter_map { |balance| token_asset(balance) }
+      # Without lookups an unresolved token is simply not known yet, which is not
+      # the same as the address holding more than one read surfaces.
+      @assets_truncated = held.size > surfaced.size || (new_lookups.positive? && assets.size < surfaced.size)
 
       assets
     end
@@ -171,9 +176,9 @@ class Onchain::TronAdapter
       cache_key = "onchain:tron_decimals:#{contract}"
       cached = Rails.cache.read(cache_key)
       return cached unless cached.nil?
-      return nil if @new_lookups >= MAX_NEW_DECIMAL_LOOKUPS
+      return nil unless @lookups_left.positive?
 
-      @new_lookups += 1
+      @lookups_left -= 1
       decimals = provider.token_decimals(contract)
       Rails.cache.write(cache_key, decimals, expires_in: DECIMALS_CACHE_TTL) unless decimals.nil?
       decimals

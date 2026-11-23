@@ -135,8 +135,10 @@ alternative would be a throttled sync. Set `TRONGRID_API_KEY` (a free TronGrid
 key) to lift the spacing to 0.1 seconds.
 
 The screens that list what an address holds (adding a wallet, reviewing tokens)
-read balances and tokens only, so they answer within a few requests; transfer
-history is read by the background sync after linking.
+read the balance and the listed tokens in a single request; transfer history is
+read by the background sync after linking. Unlisted tokens are shown only once a
+sync has learned their decimals, so a freshly linked wallet's first **Review
+tokens** may list fewer of them than a later one.
 
 **History is best effort; balances are not.** If a source refuses or times out
 on the paginated history, the balances are still recorded and the history is

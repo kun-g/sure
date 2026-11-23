@@ -277,6 +277,23 @@ class Onchain::TronAdapterTest < ActiveSupport::TestCase
     assert_not_requested :get, %r{/transactions}
   end
 
+  test "fetch_assets is one request: listed tokens are shown, unseen ones wait for a sync to learn their decimals" do
+    stub_snapshot(account: { "balance" => 1_000_000, "trc20" => [ { USDT => "1000000" }, { FAKE_USDT => "25000000" } ] })
+    lookup = stub_decimals(FAKE_USDT, 6)
+
+    snapshot = @adapter.fetch_assets(ADDRESS)
+
+    assert_equal [ nil, USDT ], snapshot.assets.map(&:contract)
+    assert_not snapshot.assets_truncated?
+    assert_not_requested lookup
+    assert_requested :get, "#{BASE}/v1/accounts/#{ADDRESS}", times: 1
+
+    # The sync that follows learns it, and the next review shows it.
+    Rails.stubs(:cache).returns(ActiveSupport::Cache::MemoryStore.new)
+    @adapter.fetch_snapshot(ADDRESS)
+    assert snapshot_has_contract?(Onchain::Chains.adapter_for(Onchain::Chains::TRON).fetch_assets(ADDRESS), FAKE_USDT)
+  end
+
   test "fetch_assets refuses a malformed address before any request" do
     assert_raises(Onchain::Chains::Error) { @adapter.fetch_assets("nope") }
     assert_not_requested :get, /trongrid/
@@ -314,6 +331,10 @@ class Onchain::TronAdapterTest < ActiveSupport::TestCase
   end
 
   private
+    def snapshot_has_contract?(snapshot, contract)
+      snapshot.assets.any? { |asset| asset.contract == contract }
+    end
+
     def json_headers
       { "Content-Type" => "application/json" }
     end
