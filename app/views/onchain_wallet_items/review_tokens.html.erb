@@ -7,6 +7,7 @@
     <%= render "onchain_wallet_items/token_review_form",
                chain: @chain,
                address: @address,
+               key_account: @key_account,
                review: @review,
                url: update_tokens_onchain_wallet_item_path(@onchain_wallet_item),
                submit_label: t(".save"),

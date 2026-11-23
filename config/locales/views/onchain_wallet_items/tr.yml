@@ -7,6 +7,18 @@ tr:
       no_activity_found: Hiçbir şey bulunamadı
       subtitle: '%{address}'
       title: Hangi ağ?
+    choose_script_type:
+      continue: "Devam"
+      errors:
+        known_address_mismatch: "Bu adres, bu anahtardan o tür için türetilen ilk adresler arasında değil. İkisinin de aynı hesaptan geldiğini kontrol edin."
+        script_type_unsupported: "Bu anahtar o adres türüyle kullanılamaz."
+      explanation: "Aynı genişletilmiş açık anahtardan her tür için farklı adresler türetilir. İlk adresi, cüzdanınızdaki ilk alım adresiyle aynı olan türü seçin; yanlış türle cüzdan boş görünür."
+      first_address: "İlk alım adresi: %{address}"
+      known_address_hint: "İlk 100 alım veya para üstü adresinden herhangi biri. Yalnızca anahtardan türetilen adreslerle karşılaştırılır."
+      known_address_label: "Veya bu cüzdandan bir adres"
+      script_type_legend: "Adres türü"
+      subtitle: "Bu anahtar, cüzdanının hangi adresleri kullandığını belirtmiyor."
+      title: "Hangi tür adresler?"
     destroy:
       success: Gözetimsiz cüzdan bağlantısı silinmek üzere zamanlandı.
     disconnect_asset:
@@ -19,9 +31,13 @@ tr:
       not_self_hosted: Bu kurulumda piyasa verisi sağlayıcıları sunucu yöneticisi tarafından yapılandırılır.
       success: Kripto fiyatları etkinleştirildi. Cüzdan değerleri bir sonraki senkronizasyondan sonra görünür.
     errors:
+      account_contains_tracked_address: "Bu hesap, zaten ayrıca takip edilen %{addresses} adresini içeriyor; coin'leri iki kez sayılırdı. Cüzdanları yönet bölümünden takibi bırakıp hesabını silin, ardından bunu ekleyin."
+      address_in_tracked_account: "Bu adres, genişletilmiş açık anahtarıyla zaten takip edilen bir hesaba ait; coin'leri zaten sayılıyor."
       address_required: Bir cüzdan adresi girin.
       already_linked: Bu adres bu ağda zaten takip ediliyor. Hangi varlıkların takip edileceğini değiştirmek için "Token'ları incele" seçeneğini kullanın.
       chain_unreachable: Bu ağın herkese açık blok gezginine ulaşılamadı. Biraz sonra tekrar deneyin.
+      invalid_account_key: "Bu genişletilmiş açık anahtar kullanılamaz. Cüzdanınızın dışa aktardığı, eksiksiz kopyalanmış ana ağ hesap anahtarı (xpub, ypub veya zpub) olmalıdır."
+      private_key: "Bu bir özel anahtar. Kaydedilmedi veya günlüğe yazılmadı; Sure'un buna hiçbir zaman ihtiyacı yoktur. Bunun yerine bir adres veya hesabın genişletilmiş açık anahtarını (xpub, ypub veya zpub) kullanın."
       rate_limited: Herkese açık blok gezgini şu anda istekleri sınırlıyor. Birkaç dakika sonra tekrar deneyin.
       unexpected: Bu cüzdan okunurken bir sorun oluştu. Ayrıntılar destek için kaydedildi.
       unrecognized_address: Bu, desteklenen herhangi bir ağdaki bir adrese benzemiyor.
@@ -35,6 +51,7 @@ tr:
         one: Bu cüzdandan %{count} varlık takip ediliyor.
         other: Bu cüzdandan %{count} varlık takip ediliyor.
     manage:
+      addresses_truncated: "Bu cüzdanın adres sayısı tek bir senkronizasyonun baktığından fazla; bakiyesi gösterilenden yüksek olabilir ve transferleri içe aktarılmaz."
       assets_truncated: Bu adres, tek bir okumada gösterilebilecekten daha fazla token içeriyor; bu nedenle yalnızca en güvenilir %{count} token listeleniyor. Zaten takip edilenlerin senkronizasyonu devam eder.
       disconnect_asset: Takibi durdur
       disconnect_asset_confirm: '%{symbol} takibi durdurulsun mu? Hesabı ve geçmişi korunur, ancak artık güncellenmez.'
@@ -48,9 +65,10 @@ tr:
       subtitle: Bu bağlantının okuduğu her adres ve her birinde takip edilenler.
       title: Gözetimsiz cüzdanları yönet
     new_wallet:
-      address_label: Cüzdan adresi
-      address_placeholder: bc1..., 0x... veya bir Solana adresi
-      bitcoin_single_address_note: Bitcoin her seferinde tek bir adres olarak takip edilir. Genişletilmiş anahtarlar (xpub/ypub/zpub) desteklenmez; bu nedenle fonları türetilmiş adreslere dağıtan bir cüzdan yalnızca girdiğiniz adresin bakiyesini gösterir.
+      account_key_privacy_note: "Genişletilmiş açık anahtarla harcama yapılamaz, ancak ona sahip olan herkes hesabın tüm adreslerini görebilir. Şifrelenmiş olarak saklanır ve ondan türetilen adresler blok gezgininde sorgulanır."
+      address_label: "Cüzdan adresi veya genişletilmiş açık anahtar"
+      address_placeholder: "bc1..., xpub..., 0x... veya bir Solana adresi"
+      bitcoin_single_address_note: "Bir Bitcoin adresiyle yalnızca o adres takip edilir. Cüzdanın tamamını takip etmek için hesabın genişletilmiş açık anahtarını (xpub, ypub veya zpub) yapıştırın: alım ve para üstü adresleri bu anahtardan bulunur ve toplanır."
       chain_auto_detect: Otomatik algıla
       chain_label: Ağ
       continue: Devam
@@ -97,10 +115,12 @@ tr:
     token_review_form:
       assets_truncated: Bu adres, tek bir okumada gösterilebilecekten daha fazla token içeriyor; bu nedenle yalnızca en güvenilir %{count} token listeleniyor.
       cancel: İptal
+      check_first_address: "Bunun cüzdanınızdaki ilk alım adresi olduğunu kontrol edin"
       explanation: Bilinen bir fiyatı olan varlıklar işaretlidir. Diğerleri işaretsiz bırakılır — cüzdanlara istenmeyen (spam) airdrop'lar gelir ve bunlar takip edilse bile bir değer taşımaz.
       native: Yerel
       no_price: Fiyat bilgisi yok; yalnızca miktar olarak takip edilir
       nothing_found: Bu adreste bu ağda görebildiğimiz hiçbir şey yok.
+      quantity_after_sync: "İlk senkronizasyonda okunur"
     update:
       success: Gözetimsiz cüzdan bağlantısı güncellendi.
     update_tokens:

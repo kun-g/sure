@@ -7,6 +7,18 @@ fr:
       no_activity_found: Aucune activité
       subtitle: "%{address}"
       title: Quel réseau ?
+    choose_script_type:
+      continue: "Continuer"
+      errors:
+        known_address_mismatch: "Cette adresse ne figure pas parmi les premières que cette clé donne pour ce type. Vérifiez que les deux proviennent du même compte."
+        script_type_unsupported: "Cette clé ne peut pas être utilisée avec ce type d'adresse."
+      explanation: "Une même clé publique étendue donne des adresses différentes pour chaque type. Choisissez celui dont la première adresse correspond à la première adresse de réception de votre portefeuille ; avec le mauvais, le portefeuille paraîtrait vide."
+      first_address: "Première adresse de réception : %{address}"
+      known_address_hint: "N'importe laquelle de ses 100 premières adresses de réception ou de monnaie. Elle est seulement comparée aux adresses que la clé donne."
+      known_address_label: "Ou une adresse de ce portefeuille"
+      script_type_legend: "Type d'adresse"
+      subtitle: "Cette clé n'indique pas quelles adresses son portefeuille utilise."
+      title: "Quel type d'adresses ?"
     destroy:
       success: Suppression de la connexion en autoconservation planifiée.
     disconnect_asset:
@@ -19,9 +31,13 @@ fr:
       not_self_hosted: Sur ce déploiement, les fournisseurs de données de marché sont configurés par l'opérateur de l'instance.
       success: Les cours des cryptomonnaies sont activés. La valeur des portefeuilles apparaîtra après la prochaine synchronisation.
     errors:
+      account_contains_tracked_address: "Ce compte contient %{addresses}, déjà suivie séparément : ses pièces seraient comptées deux fois. Arrêtez de la suivre dans Gérer les portefeuilles et supprimez son compte, puis ajoutez celui-ci."
+      address_in_tracked_account: "Cette adresse appartient à un compte déjà suivi par sa clé publique étendue : ses pièces sont déjà comptées."
       address_required: Saisissez une adresse de portefeuille.
       already_linked: Cette adresse est déjà suivie sur ce réseau. Utilisez « Vérifier les jetons » pour changer les actifs suivis.
       chain_unreachable: L'explorateur public de ce réseau est injoignable. Réessayez dans un instant.
+      invalid_account_key: "Cette clé publique étendue ne peut pas être utilisée. Il faut la clé de compte du réseau principal (xpub, ypub ou zpub) exportée par votre portefeuille, copiée en entier."
+      private_key: "Il s'agit d'une clé privée. Elle n'a été ni enregistrée ni journalisée, et Sure n'en a jamais besoin. Utilisez plutôt une adresse ou la clé publique étendue du compte (xpub, ypub ou zpub)."
       rate_limited: L'explorateur public limite actuellement le débit des requêtes. Réessayez dans quelques minutes.
       unexpected: Un problème est survenu à la lecture de ce portefeuille. Les détails ont été consignés pour le support.
       unrecognized_address: Cela ne ressemble à une adresse d'aucun réseau pris en charge.
@@ -35,6 +51,7 @@ fr:
         one: Suivi d'un actif de ce portefeuille.
         other: Suivi de %{count} actifs de ce portefeuille.
     manage:
+      addresses_truncated: "Ce portefeuille a plus d'adresses qu'une synchronisation n'en consulte : son solde peut être supérieur à celui affiché et ses transferts ne sont pas importés."
       assets_truncated: 'Cette adresse détient plus de jetons qu''une seule lecture n''en remonte : seuls les %{count} plus crédibles sont listés. Tout ce qui est déjà suivi continue de se synchroniser.'
       disconnect_asset: Arrêter le suivi
       disconnect_asset_confirm: Arrêter le suivi de %{symbol} ? Son compte et son historique sont conservés et cessent d'être mis à jour.
@@ -48,9 +65,10 @@ fr:
       subtitle: Toutes les adresses lues par cette connexion, et ce qui est suivi sur chacune.
       title: Gérer les portefeuilles en autoconservation
     new_wallet:
-      address_label: Adresse du portefeuille
-      address_placeholder: bc1..., 0x... ou une adresse Solana
-      bitcoin_single_address_note: 'Bitcoin est suivi une adresse à la fois. Les clés étendues (xpub/ypub/zpub) ne sont pas prises en charge : un portefeuille qui répartit ses fonds sur des adresses dérivées n''affichera que le solde de l''adresse saisie.'
+      account_key_privacy_note: "Une clé publique étendue ne permet pas de dépenser, mais quiconque la possède peut voir toutes les adresses du compte. Elle est enregistrée chiffrée, et les adresses qu'elle donne sont consultées sur l'explorateur de blocs."
+      address_label: "Adresse du portefeuille ou clé publique étendue"
+      address_placeholder: "bc1..., xpub..., 0x... ou une adresse Solana"
+      bitcoin_single_address_note: "Une adresse Bitcoin ne suit que cette adresse. Pour suivre un portefeuille entier, collez la clé publique étendue du compte (xpub, ypub ou zpub) : ses adresses de réception et de monnaie en sont déduites et additionnées."
       chain_auto_detect: Détecter automatiquement
       chain_label: Réseau
       continue: Continuer
@@ -84,10 +102,12 @@ fr:
     token_review_form:
       assets_truncated: 'Cette adresse détient plus de jetons qu''une seule lecture n''en remonte : seuls les %{count} plus crédibles sont listés.'
       cancel: Annuler
+      check_first_address: "Vérifiez qu'il s'agit de la première adresse de réception de votre portefeuille"
       explanation: 'Les actifs dont le cours est connu sont cochés. Les autres restent décochés : les portefeuilles accumulent des airdrops indésirables, et en suivre un n''apporte aucune valeur.'
       native: Natif
       no_price: Aucun cours disponible ; suivi en quantité uniquement
       nothing_found: Cette adresse ne détient rien que nous puissions voir sur ce réseau.
+      quantity_after_sync: "Lu à la première synchronisation"
     update:
       success: Connexion en autoconservation mise à jour.
     update_tokens:

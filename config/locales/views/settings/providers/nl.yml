@@ -200,7 +200,7 @@ nl:
         etherscan_hint: "Ethereum-gegevens kunnen zonder sleutel worden gelezen. Een Etherscan-sleutel verhoogt alleen de rate limit voor Ethereum."
         keep_etherscan_api_key: "Laat leeg om de bestaande sleutel te behouden"
         manage_wallets: "Wallets beheren"
-        keyless_body: "Sure leest alleen openbare blockchaingegevens. Er zijn geen sleutels, seedphrases of handtekeningen bij betrokken en er kan niets worden uitgegeven."
+        keyless_body: "Sure leest alleen openbare blockchaingegevens. Er zijn geen private keys, seedphrases of handtekeningen bij betrokken en er kan niets worden uitgegeven."
         keyless_title: "Alleen-lezen, geen sleutels nodig"
         save: "Opslaan"
         sync_start_date_hint: "Overboekingen vóór deze datum worden genegeerd. Laat leeg om alles te importeren wat de explorer rapporteert."

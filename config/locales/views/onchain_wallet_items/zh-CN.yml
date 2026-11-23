@@ -7,6 +7,18 @@ zh-CN:
       no_activity_found: 未发现活动
       subtitle: "%{address}"
       title: 选择哪个网络？
+    choose_script_type:
+      continue: "继续"
+      errors:
+        known_address_mismatch: "该地址不在此公钥按该类型派生的前若干个地址中。请确认两者来自同一账户。"
+        script_type_unsupported: "此公钥不能用于该地址类型。"
+      explanation: "同一个扩展公钥在每种类型下会派生出不同的地址。请选择首个地址与您钱包中首个收款地址一致的类型；选错类型时，钱包会显示为空。"
+      first_address: "首个收款地址：%{address}"
+      known_address_hint: "前 100 个收款或找零地址中的任意一个。仅用于与公钥派生的地址比对。"
+      known_address_label: "或提供此钱包的一个地址"
+      script_type_legend: "地址类型"
+      subtitle: "仅凭这个公钥无法判断其钱包使用哪种地址。"
+      title: "使用哪种地址？"
     destroy:
       success: 已计划删除自托管连接。
     disconnect_asset:
@@ -19,9 +31,13 @@ zh-CN:
       not_self_hosted: 在此部署上，行情数据提供商由实例管理员统一配置。
       success: 加密货币价格已启用。钱包估值将在下次同步后显示。
     errors:
+      account_contains_tracked_address: "此账户包含已单独追踪的 %{addresses}，其中的币会被重复计算。请先在“管理钱包”中停止追踪并删除对应账户，再添加此账户。"
+      address_in_tracked_account: "该地址属于已通过扩展公钥追踪的账户，其中的币已计算在内。"
       address_required: 请输入钱包地址。
       already_linked: 该地址已在此网络上被追踪。请使用“检查代币”来更改追踪的资产。
       chain_unreachable: 无法连接此网络的公共区块浏览器。请稍后重试。
+      invalid_account_key: "无法使用该扩展公钥。它必须是您的钱包导出的主网账户公钥（xpub、ypub 或 zpub），并且复制完整。"
+      private_key: "这是私钥。它没有被存储或写入日志，Sure 也从不需要私钥。请改用地址或账户的扩展公钥（xpub、ypub 或 zpub）。"
       rate_limited: 公共区块浏览器目前正在对请求进行限流。请在几分钟后重试。
       unexpected: 读取此钱包时发生错误。详情已记录以供技术支持。
       unrecognized_address: 该地址似乎不属于任何受支持的网络。
@@ -35,6 +51,7 @@ zh-CN:
         one: 正在追踪此钱包中的 1 个资产。
         other: "正在追踪此钱包中的 %{count} 个资产。"
     manage:
+      addresses_truncated: "此钱包的地址数量超出了单次同步的查询范围，实际余额可能高于显示值，且不会导入转账记录。"
       assets_truncated: "此地址持有的代币数量超过了单次读取的上限，因此仅列出最可信的 %{count} 个代币。已追踪的资产将继续同步。"
       disconnect_asset: 停止追踪
       disconnect_asset_confirm: "确定要停止追踪 %{symbol} 吗？其账户和历史记录将保留，但会停止更新。"
@@ -48,9 +65,10 @@ zh-CN:
       subtitle: 此连接读取的所有地址，以及在各地址追踪的资产。
       title: 管理自托管钱包
     new_wallet:
-      address_label: 钱包地址
-      address_placeholder: bc1...、0x... 或 Solana 地址
-      bitcoin_single_address_note: 比特币每次只能追踪一个地址。系统不支持扩展公钥（xpub/ypub/zpub），因此如果钱包将资金分散在派生地址上，将仅显示您输入的地址余额。
+      account_key_privacy_note: "扩展公钥不能用于花费，但持有者可以看到该账户的全部地址。它会加密存储，派生出的地址会在区块浏览器上查询。"
+      address_label: "钱包地址或扩展公钥"
+      address_placeholder: "bc1...、xpub...、0x... 或 Solana 地址"
+      bitcoin_single_address_note: "填写比特币地址时，只追踪该地址。要追踪整个钱包，请粘贴账户的扩展公钥（xpub、ypub 或 zpub）：系统会据此找出收款和找零地址并合计。"
       chain_auto_detect: 自动检测
       chain_label: 网络
       continue: 继续
@@ -97,10 +115,12 @@ zh-CN:
     token_review_form:
       assets_truncated: "此地址持有的代币数量超过了单次读取的上限，因此仅列出最可信的 %{count} 个代币。"
       cancel: 取消
+      check_first_address: "请确认这是您钱包中的首个收款地址"
       explanation: 已勾选有已知价格的资产。其他资产未勾选——钱包常会收到垃圾空投，追踪这些没有价值的资产没有意义。
       native: 原生代币
       no_price: 无可用价格；仅追踪数量
       nothing_found: 在此网络上未找到此地址持有的任何资产。
+      quantity_after_sync: "首次同步时读取"
     update:
       success: 自托管连接已更新。
     update_tokens:

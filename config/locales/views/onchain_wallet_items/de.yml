@@ -7,6 +7,18 @@ de:
       no_activity_found: Nichts gefunden
       subtitle: "%{address}"
       title: Welches Netzwerk?
+    choose_script_type:
+      continue: "Weiter"
+      errors:
+        known_address_mismatch: "Diese Adresse gehört nicht zu den ersten Adressen, die sich aus diesem Schlüssel für diesen Typ ergeben. Prüf, ob beide aus demselben Konto stammen."
+        script_type_unsupported: "Dieser Schlüssel kann nicht mit diesem Adresstyp verwendet werden."
+      explanation: "Derselbe erweiterte öffentliche Schlüssel ergibt für jede Art andere Adressen. Wähl die Art, deren erste Adresse mit der ersten Empfangsadresse in deiner Wallet übereinstimmt. Mit der falschen würde die Wallet leer erscheinen."
+      first_address: "Erste Empfangsadresse: %{address}"
+      known_address_hint: "Eine beliebige ihrer ersten 100 Empfangs- oder Wechselgeldadressen. Sie wird nur mit den Adressen verglichen, die sich aus dem Schlüssel ergeben."
+      known_address_label: "Oder eine Adresse aus dieser Wallet"
+      script_type_legend: "Adresstyp"
+      subtitle: "Aus diesem Schlüssel geht nicht hervor, welche Adressen seine Wallet verwendet."
+      title: "Welche Art von Adressen?"
     destroy:
       success: Die Verbindung zu selbstverwahrten Wallets wurde zum Löschen eingeplant.
     disconnect_asset:
@@ -19,9 +31,13 @@ de:
       not_self_hosted: Marktdatenanbieter werden für diese Bereitstellung vom Betreiber der Instanz konfiguriert.
       success: Kryptokurse sind aktiviert. Die Wallet-Werte werden nach dem nächsten Sync angezeigt.
     errors:
+      account_contains_tracked_address: "Dieses Konto enthält %{addresses}. Diese Adresse wird bereits einzeln verfolgt, ihre Coins würden also doppelt gezählt. Beende die Verfolgung in der Wallet-Verwaltung, lösch das zugehörige Konto und füg dann dieses hinzu."
+      address_in_tracked_account: "Diese Adresse gehört zu einem Konto, das bereits über seinen erweiterten öffentlichen Schlüssel verfolgt wird. Ihre Coins werden also schon gezählt."
       address_required: Gib eine Wallet-Adresse ein.
       already_linked: Diese Adresse wird in diesem Netzwerk bereits verfolgt. Welche Vermögenswerte verfolgt werden, kannst du in der Wallet-Verwaltung ändern.
       chain_unreachable: Der öffentliche Explorer für dieses Netzwerk ist nicht erreichbar. Versuch es gleich noch einmal.
+      invalid_account_key: "Dieser erweiterte öffentliche Schlüssel kann nicht verwendet werden. Benötigt wird der vollständig kopierte Mainnet-Kontoschlüssel (xpub, ypub oder zpub), den deine Wallet exportiert."
+      private_key: "Das ist ein privater Schlüssel. Er wurde weder gespeichert noch protokolliert, und Sure benötigt ihn nie. Verwende stattdessen eine Adresse oder den erweiterten öffentlichen Schlüssel des Kontos (xpub, ypub oder zpub)."
       rate_limited: Der öffentliche Explorer begrenzt derzeit die Anzahl der Anfragen. Versuch es in ein paar Minuten erneut.
       unexpected: Beim Lesen dieser Wallet ist etwas schiefgelaufen. Die Details wurden für den Support erfasst.
       unrecognized_address: Diese Adresse scheint zu keinem unterstützten Netzwerk zu gehören.
@@ -35,6 +51,7 @@ de:
         one: 1 Vermögenswert dieser Wallet wird verfolgt.
         other: "%{count} Vermögenswerte dieser Wallet werden verfolgt."
     manage:
+      addresses_truncated: "Diese Wallet hat mehr Adressen, als ein Sync abfragt. Ihr Guthaben kann daher höher sein als angezeigt, und ihre Übertragungen werden nicht importiert."
       assets_truncated: Diese Adresse enthält mehr Token, als mit einer Abfrage geladen werden können. Daher werden nur die %{count} plausibelsten angezeigt. Bereits verfolgte Vermögenswerte werden weiterhin synchronisiert.
       disconnect_asset: Nicht mehr verfolgen
       disconnect_asset_confirm: "Möchtest du %{symbol} nicht mehr verfolgen? Das Konto und der Verlauf bleiben erhalten, werden aber nicht mehr aktualisiert."
@@ -48,9 +65,10 @@ de:
       subtitle: Alle Adressen, die diese Verbindung liest, und die jeweils verfolgten Vermögenswerte.
       title: Selbstverwahrte Wallets verwalten
     new_wallet:
-      address_label: Wallet-Adresse
-      address_placeholder: bc1..., 0x... oder eine Solana-Adresse
-      bitcoin_single_address_note: Bitcoin wird jeweils über eine einzelne Adresse verfolgt. Erweiterte Schlüssel (xpub/ypub/zpub) werden nicht unterstützt. Eine Wallet, die Guthaben auf abgeleitete Adressen verteilt, zeigt daher nur das Guthaben der eingegebenen Adresse.
+      account_key_privacy_note: "Mit einem erweiterten öffentlichen Schlüssel lässt sich nichts ausgeben, aber wer ihn hat, kann alle Adressen des Kontos sehen. Er wird verschlüsselt gespeichert, und die daraus abgeleiteten Adressen werden beim Block-Explorer abgefragt."
+      address_label: "Wallet-Adresse oder erweiterter öffentlicher Schlüssel"
+      address_placeholder: "bc1..., xpub..., 0x... oder eine Solana-Adresse"
+      bitcoin_single_address_note: "Über eine Bitcoin-Adresse wird nur diese eine Adresse verfolgt. Um eine ganze Wallet zu verfolgen, füg den erweiterten öffentlichen Schlüssel des Kontos (xpub, ypub oder zpub) ein: Daraus werden die Empfangs- und Wechselgeldadressen ermittelt und zusammengezählt."
       chain_auto_detect: Automatisch erkennen
       chain_label: Netzwerk
       continue: Weiter
@@ -84,10 +102,12 @@ de:
     token_review_form:
       assets_truncated: Diese Adresse enthält mehr Token, als mit einer Abfrage geladen werden können. Daher werden nur die %{count} plausibelsten angezeigt.
       cancel: Abbrechen
+      check_first_address: "Prüf, ob dies die erste Empfangsadresse in deiner Wallet ist"
       explanation: Vermögenswerte mit bekanntem Preis sind vorausgewählt. Alle anderen bleiben abgewählt – Wallets erhalten Spam-Airdrops, und bei deren Verfolgung wird kein Wert angezeigt.
       native: Nativ
       no_price: Kein Preis verfügbar; wird nur anhand der Menge verfolgt
       nothing_found: Diese Adresse enthält in diesem Netzwerk nichts, was wir erkennen können.
+      quantity_after_sync: "Wird beim ersten Sync gelesen"
     update:
       success: Die Verbindung zu selbstverwahrten Wallets wurde aktualisiert.
     update_tokens:

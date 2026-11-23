@@ -13,6 +13,11 @@ ca:
       polygon: Polygon
       solana: Solana
     institution_name: Carteres d'autocustòdia
+    script_types:
+      p2pkh: "Antiga (1…, BIP44)"
+      p2sh_p2wpkh: "SegWit imbricada (3…, BIP49)"
+      p2tr: "Taproot (bc1p…, BIP86)"
+      p2wpkh: "SegWit nativa (bc1q…, BIP84)"
   onchain_wallet_item:
     movement:
       received: 'Rebut: %{quantity} %{symbol}'

@@ -7,6 +7,18 @@ id:
       no_activity_found: Tidak ada yang ditemukan
       subtitle: "%{address}"
       title: Jaringan mana?
+    choose_script_type:
+      continue: "Lanjutkan"
+      errors:
+        known_address_mismatch: "Alamat tersebut tidak termasuk alamat-alamat pertama yang dihasilkan kunci ini untuk jenis itu. Pastikan keduanya berasal dari akun yang sama."
+        script_type_unsupported: "Kunci ini tidak dapat digunakan dengan jenis alamat tersebut."
+      explanation: "Extended public key yang sama menghasilkan alamat berbeda untuk setiap jenis. Pilih jenis yang alamat pertamanya sama dengan alamat penerimaan pertama di dompet Anda; dengan jenis yang salah, dompet akan tampak kosong."
+      first_address: "Alamat penerimaan pertama: %{address}"
+      known_address_hint: "Salah satu dari 100 alamat penerimaan atau kembalian pertamanya. Alamat ini hanya dibandingkan dengan alamat yang dihasilkan kunci."
+      known_address_label: "Atau satu alamat dari dompet ini"
+      script_type_legend: "Jenis alamat"
+      subtitle: "Kunci ini tidak menyebutkan alamat mana yang digunakan dompetnya."
+      title: "Jenis alamat yang mana?"
     destroy:
       success: Koneksi self-custody dijadwalkan untuk dihapus.
     disconnect_asset:
@@ -19,9 +31,13 @@ id:
       not_self_hosted: Penyedia data pasar dikonfigurasikan oleh operator instance pada deployment ini.
       success: Harga kripto telah diaktifkan. Nilai dompet akan muncul setelah sinkronisasi berikutnya.
     errors:
+      account_contains_tracked_address: "Akun ini mencakup %{addresses}, yang sudah dilacak secara terpisah, sehingga koinnya akan dihitung dua kali. Hentikan pelacakannya di Kelola dompet dan hapus akunnya, lalu tambahkan akun ini."
+      address_in_tracked_account: "Alamat tersebut termasuk dalam akun yang sudah dilacak melalui extended public key-nya, sehingga koinnya sudah dihitung."
       address_required: Masukkan alamat dompet.
       already_linked: Alamat tersebut sudah dilacak di jaringan ini. Gunakan Tinjau token untuk mengubah aset yang dilacak.
       chain_unreachable: Penjelajah publik untuk jaringan ini tidak dapat dijangkau. Coba lagi sebentar lagi.
+      invalid_account_key: "Extended public key tersebut tidak dapat digunakan. Harus berupa kunci akun mainnet (xpub, ypub, atau zpub) yang diekspor dompet Anda, disalin secara lengkap."
+      private_key: "Itu adalah private key. Kunci tersebut tidak disimpan atau dicatat, dan Sure tidak pernah membutuhkannya. Gunakan alamat atau extended public key akun (xpub, ypub, atau zpub)."
       rate_limited: Penjelajah publik sedang membatasi permintaan saat ini. Coba lagi dalam beberapa menit.
       unexpected: Terjadi kesalahan saat membaca dompet ini. Detail telah dicatat untuk bantuan teknis.
       unrecognized_address: Alamat tersebut tidak tampak seperti alamat di jaringan mana pun yang didukung.
@@ -35,6 +51,7 @@ id:
         one: Melacak 1 aset dari dompet ini.
         other: "Melacak %{count} aset dari dompet ini."
     manage:
+      addresses_truncated: "Dompet ini memiliki lebih banyak alamat daripada yang diperiksa dalam satu sinkronisasi, sehingga saldonya mungkin lebih tinggi dari yang ditampilkan dan transfernya tidak diimpor."
       assets_truncated: "Alamat ini menyimpan lebih banyak token daripada yang dapat ditampilkan dalam satu pembacaan, jadi hanya %{count} token paling tepercaya yang dicantumkan. Aset apa pun yang sudah dilacak akan tetap disinkronkan."
       disconnect_asset: Berhenti melacak
       disconnect_asset_confirm: "Berhenti melacak %{symbol}? Akun dan riwayatnya akan tetap disimpan dan berhenti diperbarui."
@@ -48,9 +65,10 @@ id:
       subtitle: Setiap alamat yang dibaca koneksi ini, dan apa yang dilacak pada masing-masing alamat.
       title: Kelola dompet self-custody
     new_wallet:
-      address_label: Alamat dompet
-      address_placeholder: bc1..., 0x..., atau alamat Solana
-      bitcoin_single_address_note: Bitcoin dilacak satu alamat pada satu waktu. Extended key (xpub/ypub/zpub) tidak didukung, sehingga dompet yang menyebarkan dana ke berbagai alamat turunan hanya akan menampilkan saldo alamat yang Anda masukkan.
+      account_key_privacy_note: "Extended public key tidak dapat digunakan untuk membelanjakan, tetapi siapa pun yang memilikinya dapat melihat semua alamat akun. Kunci disimpan terenkripsi, dan alamat yang dihasilkannya dicari di penjelajah blok."
+      address_label: "Alamat dompet atau extended public key"
+      address_placeholder: "bc1..., xpub..., 0x..., atau alamat Solana"
+      bitcoin_single_address_note: "Alamat Bitcoin hanya melacak alamat itu sendiri. Untuk melacak seluruh dompet, tempel extended public key akun (xpub, ypub, atau zpub): alamat penerimaan dan kembaliannya ditemukan dari kunci tersebut lalu dijumlahkan."
       chain_auto_detect: Deteksi secara otomatis
       chain_label: Jaringan
       continue: Lanjutkan
@@ -97,10 +115,12 @@ id:
     token_review_form:
       assets_truncated: "Alamat ini menyimpan lebih banyak token daripada yang dapat ditampilkan dalam satu pembacaan, jadi hanya %{count} token paling tepercaya yang dicantumkan."
       cancel: Batal
+      check_first_address: "Pastikan ini alamat penerimaan pertama di dompet Anda"
       explanation: Aset dengan harga yang diketahui telah dicentang. Hal lainnya dibiarkan tidak dicentang — dompet sering mengumpulkan airdrop spam, dan melacaknya tidak memberi nilai apa pun.
       native: Native
       no_price: Harga tidak tersedia; hanya dilacak berdasarkan kuantitas
       nothing_found: Alamat ini tidak menyimpan apa pun yang dapat kami lihat di jaringan ini.
+      quantity_after_sync: "Dibaca pada sinkronisasi pertama"
     update:
       success: Memperbarui koneksi self-custody.
     update_tokens:

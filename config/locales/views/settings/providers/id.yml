@@ -201,7 +201,7 @@ id:
         etherscan_hint: Pembacaan Ethereum berfungsi tanpa kunci. Menambahkan kunci Etherscan hanya menaikkan batas laju untuk Ethereum.
         keep_etherscan_api_key: Biarkan kosong untuk mempertahankan kunci yang ada
         manage_wallets: Kelola dompet
-        keyless_body: Sure hanya pernah membaca data rantai publik. Tidak ada kunci, seed phrase, atau tanda tangan yang terlibat, dan tidak ada yang dapat dibelanjakan.
+        keyless_body: Sure hanya pernah membaca data rantai publik. Tidak ada private key, seed phrase, atau tanda tangan yang terlibat, dan tidak ada yang dapat dibelanjakan.
         keyless_title: Baca-saja, tidak memerlukan kunci
         save: Simpan
         sync_start_date_hint: Transfer sebelum tanggal ini diabaikan. Biarkan kosong untuk mengimpor semua yang dilaporkan explorer.

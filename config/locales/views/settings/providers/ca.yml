@@ -342,7 +342,7 @@ ca:
         etherscan_hint: Les lectures d'Ethereum funcionen sense clau. Afegir una clau d'Etherscan només augmenta el límit de sol·licituds per a Ethereum.
         keep_etherscan_api_key: Deixa-ho en blanc per mantenir la clau existent
         manage_wallets: Gestiona les carteres
-        keyless_body: Sure només llegeix dades públiques de la cadena de blocs. No intervenen claus, frases de recuperació ni signatures, i no es pot gastar res.
+        keyless_body: Sure només llegeix dades públiques de la cadena de blocs. No intervenen claus privades, frases de recuperació ni signatures, i no es pot gastar res.
         keyless_title: Només lectura, sense claus
         save: Desa
         sync_start_date_hint: Les transferències anteriors a aquesta data s'ignoren. Deixa-ho en blanc per importar tot el que mostri l'explorador.

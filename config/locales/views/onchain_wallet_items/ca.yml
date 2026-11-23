@@ -7,6 +7,18 @@ ca:
       no_activity_found: No s'ha trobat res
       subtitle: '%{address}'
       title: Quina xarxa?
+    choose_script_type:
+      continue: "Continua"
+      errors:
+        known_address_mismatch: "Aquesta adreça no és entre les primeres que aquesta clau genera per a aquest tipus. Comprova que totes dues siguin del mateix compte."
+        script_type_unsupported: "Aquesta clau no es pot fer servir amb aquest tipus d'adreça."
+      explanation: "La mateixa clau pública estesa genera adreces diferents per a cada tipus. Tria el tipus la primera adreça del qual coincideixi amb la primera adreça de recepció de la teva cartera; amb l'equivocat, la cartera semblaria buida."
+      first_address: "Primera adreça de recepció: %{address}"
+      known_address_hint: "Qualsevol de les seves 100 primeres adreces de recepció o de canvi. Només es compara amb les adreces que genera la clau."
+      known_address_label: "O una adreça d'aquesta cartera"
+      script_type_legend: "Tipus d'adreça"
+      subtitle: "Aquesta clau no indica quines adreces fa servir la seva cartera."
+      title: "Quin tipus d'adreces?"
     destroy:
       success: S'ha programat l'eliminació de la connexió de cartera autocustodiada.
     disconnect_asset:
@@ -19,9 +31,13 @@ ca:
       not_self_hosted: En aquesta instal·lació, els proveïdors de dades de mercat els configura l'operador de la instància.
       success: S'han activat els preus de criptomonedes. Els valors de les carteres apareixeran després de la propera sincronització.
     errors:
+      account_contains_tracked_address: "Aquest compte inclou %{addresses}, que ja se segueix per separat, de manera que les seves monedes es comptarien dues vegades. Deixa de seguir-la a Gestiona les carteres i elimina'n el compte; després afegeix aquest."
+      address_in_tracked_account: "Aquesta adreça pertany a un compte que ja se segueix amb la seva clau pública estesa, de manera que les seves monedes ja es compten."
       address_required: Introdueix una adreça de cartera.
       already_linked: Aquesta adreça ja se segueix en aquesta xarxa. Fes servir «Revisa els tokens» per canviar quins actius se segueixen.
       chain_unreachable: No s'ha pogut accedir a l'explorador públic d'aquesta xarxa. Torna-ho a provar d'aquí a un moment.
+      invalid_account_key: "Aquesta clau pública estesa no es pot fer servir. Ha de ser la clau de compte de la xarxa principal (xpub, ypub o zpub) que exporta la teva cartera, copiada sencera."
+      private_key: "Això és una clau privada. No s'ha desat ni registrat, i Sure no la necessita mai. Fes servir una adreça o la clau pública estesa del compte (xpub, ypub o zpub)."
       rate_limited: L'explorador públic està limitant les sol·licituds en aquest moment. Torna-ho a provar d'aquí a uns minuts.
       unexpected: S'ha produït un error en llegir aquesta cartera. Els detalls s'han registrat per al servei d'assistència.
       unrecognized_address: No sembla una adreça de cap de les xarxes compatibles.
@@ -35,6 +51,7 @@ ca:
         one: Se segueix %{count} actiu d'aquesta cartera.
         other: Se segueixen %{count} actius d'aquesta cartera.
     manage:
+      addresses_truncated: "Aquesta cartera té més adreces de les que consulta una sincronització, de manera que el saldo pot ser més alt que el que es mostra i les transferències no s'importen."
       assets_truncated: Aquesta adreça conté més tokens dels que es poden obtenir en una sola lectura, així que només es mostren els %{count} més fiables. Tot el que ja se segueix continua sincronitzant-se.
       disconnect_asset: Deixa de seguir
       disconnect_asset_confirm: Vols deixar de seguir %{symbol}? Se'n conserven el compte i l'historial, però deixen d'actualitzar-se.
@@ -48,9 +65,10 @@ ca:
       subtitle: Totes les adreces que llegeix aquesta connexió i què se segueix a cadascuna.
       title: Gestiona les carteres autocustodiades
     new_wallet:
-      address_label: Adreça de la cartera
-      address_placeholder: bc1..., 0x... o una adreça de Solana
-      bitcoin_single_address_note: Bitcoin se segueix adreça per adreça. No s'admeten les claus esteses (xpub/ypub/zpub), de manera que una cartera que reparteix els fons entre adreces derivades només mostrarà el saldo de l'adreça que introdueixis.
+      account_key_privacy_note: "Amb una clau pública estesa no es pot gastar, però qui la tingui pot veure totes les adreces del compte. Es desa xifrada, i les adreces que genera es consulten a l'explorador de blocs."
+      address_label: "Adreça de la cartera o clau pública estesa"
+      address_placeholder: "bc1..., xpub..., 0x... o una adreça de Solana"
+      bitcoin_single_address_note: "Amb una adreça de Bitcoin només se segueix aquella adreça. Per seguir una cartera sencera, enganxa la clau pública estesa del compte (xpub, ypub o zpub): a partir d'ella es troben i se sumen les adreces de recepció i de canvi."
       chain_auto_detect: Detecta automàticament
       chain_label: Xarxa
       continue: Continua
@@ -97,10 +115,12 @@ ca:
     token_review_form:
       assets_truncated: Aquesta adreça conté més tokens dels que es poden obtenir en una sola lectura, així que només es mostren els %{count} més fiables.
       cancel: Cancel·la
+      check_first_address: "Comprova que aquesta és la primera adreça de recepció de la teva cartera"
       explanation: 'Els actius amb un preu conegut estan marcats. La resta es deixen sense marcar: les carteres reben airdrops brossa, i seguir-ne un no aporta cap valor.'
       native: Nativa
       no_price: No hi ha preu disponible; només se segueix la quantitat
       nothing_found: No veiem res en aquesta adreça en aquesta xarxa.
+      quantity_after_sync: "Es llegeix a la primera sincronització"
     update:
       success: S'ha actualitzat la connexió de cartera autocustodiada.
     update_tokens:
