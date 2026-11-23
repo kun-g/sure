@@ -12,6 +12,7 @@ nl:
       polkadot: "Polkadot"
       polygon: "Polygon"
       solana: "Solana"
+      tron: "TRON"
     institution_name: "Wallets in eigen beheer"
   onchain_wallet_item:
     movement:

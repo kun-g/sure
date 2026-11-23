@@ -12,6 +12,7 @@ pl:
       polkadot: Polkadot
       polygon: Polygon
       solana: Solana
+      tron: TRON
     institution_name: Portfele niekustodialne
   onchain_wallet_item:
     movement:

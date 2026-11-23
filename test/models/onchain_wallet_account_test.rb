@@ -78,7 +78,7 @@ class OnchainWalletAccountTest < ActiveSupport::TestCase
     odd = @item.onchain_wallet_accounts.new(
       chain: OnchainTestHelper::FAKE_CHAIN,
       wallet_address: OnchainTestHelper::FAKE_ADDRESS,
-      asset_kind: "trc20",
+      asset_kind: "erc721",
       contract_address: "0xccc",
       symbol: "FUSD",
       decimals: 6,
@@ -90,6 +90,29 @@ class OnchainWalletAccountTest < ActiveSupport::TestCase
     # keyed by nothing and would duplicate freely.
     assert_raises ActiveRecord::StatementInvalid do
       odd.save!(validate: false)
+    end
+  end
+
+  test "the database keys a trc20 token on its contract, with case kept" do
+    attributes = {
+      chain: "tron",
+      wallet_address: "TJRabPrwbZy45sbavfcjinPJC18kjpRTv8",
+      asset_kind: "trc20",
+      symbol: "USDT",
+      decimals: 6,
+      quantity: 1,
+      currency: "USD"
+    }
+    usdt = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t"
+    @item.onchain_wallet_accounts.create!(attributes.merge(contract_address: usdt))
+
+    assert_equal usdt, @item.onchain_wallet_accounts.find_by!(asset_kind: "trc20").contract_address
+    assert_raises ActiveRecord::RecordNotUnique do
+      @item.onchain_wallet_accounts.new(attributes.merge(contract_address: usdt)).save!(validate: false)
+    end
+    # Base58 is case-sensitive: this is a different contract, not a duplicate.
+    assert_nothing_raised do
+      @item.onchain_wallet_accounts.create!(attributes.merge(contract_address: usdt.downcase))
     end
   end
 

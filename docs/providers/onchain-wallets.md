@@ -1,7 +1,7 @@
 # On-chain (self-custody) wallets
 
 Sure can track wallets you hold the keys to — Bitcoin, six EVM networks,
-Solana, Polkadot and the Cosmos Hub — from their **public addresses only**. Nothing is signed, no key or seed
+Solana, TRON, Polkadot and the Cosmos Hub — from their **public addresses only**. Nothing is signed, no key or seed
 phrase is ever entered, and no API key is required for any chain.
 
 This document covers where the data comes from, what needs configuring, the
@@ -80,6 +80,7 @@ listed, so the cause is visible without having to reproduce it.
 | Solana token names | Jupiter token search (`lite-api.jup.ag`) | No | `SOLANA_TOKEN_LIST_URL` |
 | Cosmos Hub | Public REST node (`cosmos-rest.publicnode.com`) | No | `COSMOS_REST_URL` |
 | Polkadot | Parity's public Asset Hub Sidecar | No | `POLKADOT_SIDECAR_URL` (must be an Asset Hub Sidecar) |
+| TRON | TronGrid (`api.trongrid.io`) | No (optional, for a higher rate limit) | `TRONGRID_URL`, `TRONGRID_API_KEY` |
 
 Every override expects the base URL of a compatible instance, without a trailing
 slash — useful if you run your own indexer or node, or if a public endpoint rate
@@ -113,6 +114,7 @@ address, the cost is roughly:
 | Solana | ~2 + up to 25 transaction reads |
 | Cosmos Hub | 3, plus a page per extra 200 validators staked with |
 | Polkadot | 1 |
+| TRON | 1 + up to 10 pages of TRX transfers + up to 10 pages of TRC20 transfers + up to 10 token decimals lookups |
 
 History is capped by default at 10 pages per source — 250 transactions for
 Bitcoin, 10 pages per EVM collection — and at 25 transactions for Solana, which
@@ -125,6 +127,12 @@ Raise both caps with `ONCHAIN_HISTORY_MAX_PAGES` (default 10, maximum 200); the
 Solana budget scales with it proportionally. The request cost in the table above
 scales too, so raise it if you run your own node or indexer rather than against a
 public endpoint.
+
+TronGrid without a key allows **one request per second** and suspends the caller
+for five seconds when that is exceeded, so TRON requests are spaced 1.1 seconds
+apart process-wide: a TRON sync takes seconds to a few tens of seconds, and the
+alternative would be a throttled sync. Set `TRONGRID_API_KEY` (a free TronGrid
+key) to lift the spacing to 0.1 seconds.
 
 **History is best effort; balances are not.** If a source refuses or times out
 on the paginated history, the balances are still recorded and the history is
@@ -164,7 +172,7 @@ whole flow; you can still pick it by hand.
 1. Paste the public address. Leave the network on "Detect automatically" unless
    you know which one you want.
 2. If the address format belongs to several networks — every `0x` address is
-   valid on all six EVM networks, and Bitcoin's Base58 shape overlaps Solana's —
+   valid on all six EVM networks, and Bitcoin's and TRON's Base58 shapes overlap Solana's —
    Sure probes each and asks you to choose, marking the ones where it found
    activity.
 3. Pick the assets to track. The native coin and assets the data source treats
@@ -244,6 +252,19 @@ only, rather than being handed the real asset's price. A handful of major mints
 resolve without the list, so they keep working if it is unreachable. Names are
 cached for 24 hours per mint, misses included.
 
+**TRON tokens only get a ticker if Sure lists the contract.** A TRC20 contract is
+cheap to deploy under any name, and a wallet's history routinely contains a
+"USDT" that is not Tether's. TronGrid also reports a wallet's token balances by
+contract only. So only USDT (`TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t`) and USDC
+(`TEkxiTehnzSmSe2XqrBj4w32RUN966rdz8`) are recognised; any other token is listed
+as `TRC20:abcd…wxyz`, tracked by quantity and valued at zero, and not pre-ticked
+for import. To read that quantity Sure asks the contract for its decimals, which
+is cached for 30 days and limited to ten contracts per sync; tokens beyond that
+are picked up by later syncs. Native TRX transfers are limited to plain transfers
+between accounts: staking, resource delegation and smart-contract calls are not
+movements of the balance Sure records, so a TRX balance can differ from the sum
+of its imported transfers.
+
 **Cosmos Hub has no transfer history.** Public nodes do not index
 transactions, so only the ATOM balance is read: spendable, staked and unbonding,
 but not unclaimed rewards or IBC tokens. Past transfers are not
@@ -304,6 +325,11 @@ automatically. Use **Review tokens** and tick it.
 **A Solana token shows as `SPL:abcd…wxyz`.** The token list does not vouch for
 that mint, so Sure will not name or price it. Tick it anyway to track the
 quantity.
+
+**A TRON sync is slow or says the explorer could not be reached.** Keyless
+TronGrid is limited to one request per second per IP address, shared with
+everything else on your network that uses it. Retry later, or set
+`TRONGRID_API_KEY`.
 
 **Transfers appear with a value of 0 and are excluded from totals.** No price was
 available for that date yet. Once market data covers the range, the next sync

@@ -12,6 +12,7 @@ ru:
       polkadot: Polkadot
       polygon: Polygon
       solana: Solana
+      tron: TRON
     institution_name: Некастодиальные кошельки
   onchain_wallet_item:
     movement:

@@ -23,12 +23,12 @@ module Onchain
     # (see CreateOnchainWalletItemsAndAccounts). Registering a chain whose
     # tokens don't fit one of these would silently lose DB-level uniqueness,
     # so `register` refuses it.
-    INDEXED_TOKEN_KINDS = %w[erc20 spl].freeze
+    INDEXED_TOKEN_KINDS = %w[erc20 spl trc20].freeze
 
     # Token kinds whose contract identifier carries no case: an EVM contract is
     # hex, so 0xAbC and 0xabc are one token. An SPL mint is a Base58 public key
     # where case is part of the value — downcasing one corrupts it, and two
-    # distinct mints can collide once folded.
+    # distinct mints can collide once folded. A TRC20 contract is Base58 too.
     CASE_INSENSITIVE_CONTRACT_KINDS = %w[erc20].freeze
 
     NativeAsset = Data.define(:symbol, :name, :decimals)
@@ -96,6 +96,8 @@ module Onchain
 
     POLKADOT = "polkadot"
 
+    TRON = "tron"
+
     BUILTIN = [
       Definition.new(
         key: BITCOIN,
@@ -136,6 +138,13 @@ module Onchain
         native: NativeAsset.new(symbol: "DOT", name: "Polkadot", decimals: 10),
         token_kind: nil,
         adapter_class_name: "Onchain::PolkadotAdapter",
+        adapter_options: {}
+      ),
+      Definition.new(
+        key: TRON,
+        native: NativeAsset.new(symbol: "TRX", name: "TRON", decimals: 6),
+        token_kind: "trc20",
+        adapter_class_name: "Onchain::TronAdapter",
         adapter_options: {}
       )
     ].freeze

@@ -12,6 +12,7 @@ pt-PT:
       polkadot: Polkadot
       polygon: Polygon
       solana: Solana
+      tron: TRON
     institution_name: Carteiras de autocustódia
   onchain_wallet_item:
     movement:

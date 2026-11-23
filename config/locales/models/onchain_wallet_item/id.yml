@@ -12,6 +12,7 @@ id:
       polkadot: Polkadot
       polygon: Polygon
       solana: Solana
+      tron: TRON
     institution_name: Dompet self-custody
   onchain_wallet_item:
     movement:

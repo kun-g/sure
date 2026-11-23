@@ -18,6 +18,7 @@ class Onchain::SolanaAdapter
   include Onchain::ChainAdapter
 
   LAMPORTS_PER_SOL = 1_000_000_000.to_d
+  PUBLIC_KEY_BYTES = 32
 
   # Base58 (no 0, O, I or l). 32-byte keys encode to 43-44 characters, but
   # shorter encodings are legal, and Bitcoin's Base58 addresses fall inside this
@@ -54,11 +55,13 @@ class Onchain::SolanaAdapter
     ADDRESS_PATTERN.match?(address.to_s.strip)
   end
 
-  # One request. A Bitcoin address fits Solana's Base58 shape but is not a valid
-  # 32-byte key, so the node rejects it and we answer "not here" — which is how
-  # the linking flow tells the two apart.
+  # One request. A Bitcoin or TRON address fits Solana's Base58 shape but is not
+  # a 32-byte key, so it is answered "not here" without asking: the node would
+  # only reject it, and a rejection reads as "could not tell", which leaves the
+  # linking flow unable to tell the two chains apart.
   def has_activity?(address)
     return false unless valid_address?(address)
+    return false unless public_key?(address)
 
     return true if detection_provider.get_balance(address).positive?
 
@@ -105,6 +108,10 @@ class Onchain::SolanaAdapter
 
     def definition
       Onchain::Chains.find!(Onchain::Chains::SOLANA)
+    end
+
+    def public_key?(address)
+      Onchain::Base58.decode(address.to_s.strip)&.bytesize == PUBLIC_KEY_BYTES
     end
 
     def provider

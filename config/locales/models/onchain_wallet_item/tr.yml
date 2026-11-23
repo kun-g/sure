@@ -12,6 +12,7 @@ tr:
       polkadot: Polkadot
       polygon: Polygon
       solana: Solana
+      tron: TRON
     institution_name: Gözetimsiz cüzdanlar
   onchain_wallet_item:
     movement:
