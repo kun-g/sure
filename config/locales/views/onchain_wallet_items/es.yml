@@ -37,7 +37,7 @@ es:
       already_linked: Esa dirección ya se sigue en esta red. Usa Revisar tokens para cambiar qué activos se siguen.
       chain_unreachable: No se ha podido acceder al explorador público de esta red. Inténtalo de nuevo en un momento.
       invalid_account_key: "Esa clave pública extendida no se puede usar. Tiene que ser la clave de cuenta de la red principal (xpub, ypub o zpub) que exporta tu cartera, copiada entera."
-      private_key: "Eso es una clave privada. No se ha guardado ni registrado, y Sure nunca la necesita. Usa una dirección o la clave pública extendida de la cuenta (xpub, ypub o zpub)."
+      private_key: "Eso parece una clave privada o una frase semilla. No se ha guardado ni registrado, y Sure nunca la necesita. Usa una dirección o la clave pública extendida de la cuenta (xpub, ypub o zpub)."
       rate_limited: El explorador público está limitando las solicitudes. Inténtalo de nuevo en unos minutos.
       unexpected: Algo ha fallado al leer esta cartera. Se han guardado los detalles para soporte.
       unrecognized_address: No parece una dirección de ninguna red compatible.

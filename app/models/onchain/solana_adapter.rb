@@ -25,6 +25,9 @@ class Onchain::SolanaAdapter
   # range too — which is exactly why activity is probed rather than assumed.
   ADDRESS_PATTERN = /\A[1-9A-HJ-NP-Za-km-z]{32,44}\z/
 
+  # The 64-byte keypair wallets export in Base58.
+  PRIVATE_KEY_PATTERN = /(?<![0-9A-Za-z])[1-9A-HJ-NP-Za-km-z]{87,88}(?![0-9A-Za-z])/
+
   # Fallback for the handful of mints that must resolve even when the token list
   # is unreachable. Deliberately short: a wrong guess here would value a holding
   # as an unrelated asset.
@@ -53,6 +56,10 @@ class Onchain::SolanaAdapter
 
   def valid_address?(address)
     ADDRESS_PATTERN.match?(address.to_s.strip)
+  end
+
+  def private_key?(value)
+    PRIVATE_KEY_PATTERN.match?(value.to_s)
   end
 
   # One request. A Bitcoin or TRON address fits Solana's Base58 shape but is not

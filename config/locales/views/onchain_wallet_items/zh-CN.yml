@@ -37,7 +37,7 @@ zh-CN:
       already_linked: 该地址已在此网络上被追踪。请使用“检查代币”来更改追踪的资产。
       chain_unreachable: 无法连接此网络的公共区块浏览器。请稍后重试。
       invalid_account_key: "无法使用该扩展公钥。它必须是您的钱包导出的主网账户公钥（xpub、ypub 或 zpub），并且复制完整。"
-      private_key: "这是私钥。它没有被存储或写入日志，Sure 也从不需要私钥。请改用地址或账户的扩展公钥（xpub、ypub 或 zpub）。"
+      private_key: "这看起来是私钥或助记词。它没有被存储或写入日志，Sure 也从不需要私钥或助记词。请改用地址或账户的扩展公钥（xpub、ypub 或 zpub）。"
       rate_limited: 公共区块浏览器目前正在对请求进行限流。请在几分钟后重试。
       unexpected: 读取此钱包时发生错误。详情已记录以供技术支持。
       unrecognized_address: 该地址似乎不属于任何受支持的网络。

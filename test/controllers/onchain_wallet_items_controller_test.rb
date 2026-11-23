@@ -746,29 +746,71 @@ class OnchainWalletItemsControllerTest < ActionDispatch::IntegrationTest
     assert_match I18n.t("onchain_wallet_items.errors.unrecognized_address"), response.body
   end
 
-  test "a private key is refused everywhere, unstored, unlogged and unechoed" do
+  test "a secret is refused everywhere, unstored, unlogged and unechoed" do
     log = StringIO.new
     logger = ActiveSupport::TaggedLogging.new(ActiveSupport::Logger.new(log))
     Rails.stubs(:logger).returns(logger)
     ActionController::Base.stubs(:logger).returns(logger)
 
-    assert_no_difference [ "OnchainWalletAccount.count", "Account.count", "OnchainWalletItem.count", "DebugLogEntry.count" ] do
-      [
-        [ preview_wallet_onchain_wallet_items_url, { address: BIP84_ZPRV } ],
-        [ preview_wallet_onchain_wallet_items_url, { address: " #{BIP84_ZPRV} ", chain: Onchain::Chains::BITCOIN } ],
-        [ preview_wallet_onchain_wallet_items_url, { address: BIP84_ZPRV, chain: Onchain::Chains::ETHEREUM } ],
-        [ preview_wallet_onchain_wallet_items_url, { address: BIP84_XPUB, known_address: BIP84_ZPRV } ],
-        [ link_wallet_onchain_wallet_items_url, { address: BIP84_ZPRV, chain: Onchain::Chains::BITCOIN, script_type: "p2wpkh", assets: [ "native" ] } ]
-      ].each do |url, params|
-        post url, params: params
+    # Published keys and phrases. The phrases are told apart from the page around
+    # them by their words, so none may be ones the interface uses.
+    phrase = %w[letter advice cage absurd amount doctor acoustic avoid letter advice cage bless]
+    secrets = [
+      BIP84_ZPRV,
+      "xprv9xpXFhFpqdQK3TmytPBqXtGSwS3DLjojFhTGht8gwAAii8py5X6pxeBnQ6ehJiyJ6nDjWGJfZ95WxByFXVkDxHXrqu53WCRGypk2ttuqncb",
+      "yprvAHwhK6RbpuS3dgCYHM5jc2ZvEKd7Bi61u9FVhYMpgMSuZS613T1xxQeKTffhrHY79hZ5PsskBjcc6C2V7DrnsMsNaGDaWev3GLRQRgV7hxF",
+      "tprv8fVU32aAEuEPeH1WYx3LhXtSFZTRaFqjbFNPaJZ9R8fCVja44tSaUPZEKGpMK6McUDkWWMvRiVfKR3Wzei6AmLoTNYHMAZ9KtvVTLZZdhvA",
+      "5HpHagT65TZzG1PH3CSu63k8DbpvD8s5ip4nEB3kEsreAnchuDf",
+      "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn",
+      "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgwmaKkrx",
+      "cMahea7zqjxrtgAbB7LSGbcQUr1uX1ojuat9jZodMN87JcbXMTcA",
+      "0x#{"4c" * 32}",
+      "2Ana1pUpv2ZbMVkwF5FXapYeBEjdxDatLn7nvJkhgTSXbs59SyZSx866bXirPgj8QQVB57uxHJBG1YFvkRbFj4T",
+      *[ 12, 15, 18, 21, 24 ].map { |count| phrase.cycle.first(count).join(" ") },
+      phrase.join(" ").upcase,
+      phrase.join(", ")
+    ]
 
-        assert_response :unprocessable_entity
-        assert_includes response.parsed_body.text, I18n.t("onchain_wallet_items.errors.private_key")
-        assert_not_includes response.body, BIP84_ZPRV
+    assert_no_difference [ "OnchainWalletAccount.count", "Account.count", "OnchainWalletItem.count", "DebugLogEntry.count" ] do
+      secrets.each do |secret|
+        [
+          [ preview_wallet_onchain_wallet_items_url, { address: secret } ],
+          [ preview_wallet_onchain_wallet_items_url, { address: " #{secret} ", chain: Onchain::Chains::BITCOIN } ],
+          [ preview_wallet_onchain_wallet_items_url, { address: secret, chain: Onchain::Chains::ETHEREUM } ],
+          [ preview_wallet_onchain_wallet_items_url, { address: [ secret ] } ],
+          [ preview_wallet_onchain_wallet_items_url, { address: BIP84_XPUB, known_address: secret } ],
+          [ link_wallet_onchain_wallet_items_url, { address: secret, chain: Onchain::Chains::BITCOIN, script_type: "p2wpkh", assets: [ "native" ] } ]
+        ].each do |url, params|
+          post url, params: params
+
+          assert_response :unprocessable_entity
+          assert_includes response.parsed_body.text, I18n.t("onchain_wallet_items.errors.private_key")
+          assert_select "input[name=address]:not([value])", 1
+          assert_not_includes response.body, secret
+          assert_not_includes response.body, "acoustic"
+        end
       end
     end
 
-    assert_not_includes log.string, BIP84_ZPRV
+    secrets.each { |secret| assert_not_includes log.string, secret }
+    assert_no_match(/acoustic/i, log.string)
+  end
+
+  test "a mistyped address is given back to be corrected" do
+    preview_bitcoin("bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdx")
+
+    assert_response :unprocessable_entity
+    assert_select "input[name=address][value=?]", "bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdx"
+  end
+
+  # The browser must neither remember what is pasted here nor send it to a
+  # spelling service.
+  test "the fields an address is pasted into are kept from the browser's own services" do
+    get new_wallet_onchain_wallet_items_url
+    assert_select "input[name=address][autocomplete=off][spellcheck=false][autocapitalize=none]", 1
+
+    preview_bitcoin(BIP84_XPUB)
+    assert_select "input[name=known_address][autocomplete=off][spellcheck=false][autocapitalize=none]", 1
   end
 
   test "a key that is not a mainnet account key is named as the problem" do

@@ -37,7 +37,7 @@ tr:
       already_linked: Bu adres bu ağda zaten takip ediliyor. Hangi varlıkların takip edileceğini değiştirmek için "Token'ları incele" seçeneğini kullanın.
       chain_unreachable: Bu ağın herkese açık blok gezginine ulaşılamadı. Biraz sonra tekrar deneyin.
       invalid_account_key: "Bu genişletilmiş açık anahtar kullanılamaz. Cüzdanınızın dışa aktardığı, eksiksiz kopyalanmış ana ağ hesap anahtarı (xpub, ypub veya zpub) olmalıdır."
-      private_key: "Bu bir özel anahtar. Kaydedilmedi veya günlüğe yazılmadı; Sure'un buna hiçbir zaman ihtiyacı yoktur. Bunun yerine bir adres veya hesabın genişletilmiş açık anahtarını (xpub, ypub veya zpub) kullanın."
+      private_key: "Bu bir özel anahtara veya kurtarma ifadesine (seed phrase) benziyor. Kaydedilmedi veya günlüğe yazılmadı; Sure'un buna hiçbir zaman ihtiyacı yoktur. Bunun yerine bir adres veya hesabın genişletilmiş açık anahtarını (xpub, ypub veya zpub) kullanın."
       rate_limited: Herkese açık blok gezgini şu anda istekleri sınırlıyor. Birkaç dakika sonra tekrar deneyin.
       unexpected: Bu cüzdan okunurken bir sorun oluştu. Ayrıntılar destek için kaydedildi.
       unrecognized_address: Bu, desteklenen herhangi bir ağdaki bir adrese benzemiyor.

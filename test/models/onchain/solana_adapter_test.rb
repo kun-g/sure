@@ -20,6 +20,15 @@ class Onchain::SolanaAdapterTest < ActiveSupport::TestCase
     end
   end
 
+  test "an exported keypair is recognized, and neither an address nor a Bitcoin account key is one" do
+    keypair = "2Ana1pUpv2ZbMVkwF5FXapYeBEjdxDatLn7nvJkhgTSXbs59SyZSx866bXirPgj8QQVB57uxHJBG1YFvkRbFj4T"
+    [ keypair, " #{keypair}\n", "\"#{keypair}\"" ].each { |value| assert @adapter.private_key?(value), value }
+
+    [ ADDRESS, BitcoinExplorerTestHelper::BIP84_XPUB, "", nil ].each do |value|
+      assert_not @adapter.private_key?(value), value.inspect
+    end
+  end
+
   test "fetch_snapshot refuses a malformed address before any request" do
     assert_raises Onchain::Chains::Error do
       @adapter.fetch_snapshot("nope")

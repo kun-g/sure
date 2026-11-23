@@ -34,8 +34,8 @@ module Onchain::ChainAdapter
     fetch_snapshot(address)
   end
 
-  # Whether the input is a secret that could spend from a wallet. It is refused
-  # before anything else looks at it. Must never make a network call.
+  # Whether the input looks like a private key of this chain. It is refused before
+  # anything else looks at it. Must never make a network call.
   def private_key?(_value)
     false
   end

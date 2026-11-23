@@ -32,6 +32,17 @@ class OnchainWalletItemsLocalizationTest < ActionDispatch::IntegrationTest
     end
   end
 
+  # What was pasted is judged by its shape, so the answer has to name both.
+  test "the refusal of a secret is translated wherever the wallet pages are" do
+    messages = Rails.root.glob("config/locales/views/onchain_wallet_items/*.yml").map { |path| path.basename(".yml").to_s }.index_with do |locale|
+      I18n.t("onchain_wallet_items.errors.private_key", locale: locale, fallback: false, raise: true)
+    end
+
+    assert_equal messages.size, messages.values.uniq.size
+    assert_match "private key or seed phrase", messages["en"]
+    assert_match "私钥或助记词", messages["zh-CN"]
+  end
+
   test "German translations preserve interpolation and pluralization contracts" do
     address = OnchainTestHelper::FAKE_ADDRESS
 

@@ -37,7 +37,7 @@ nl:
       already_linked: "Dat adres wordt op dit netwerk al gevolgd. Gebruik Tokens controleren om te wijzigen welke assets worden gevolgd."
       chain_unreachable: "De openbare explorer voor dit netwerk is niet bereikbaar. Probeer het zo meteen opnieuw."
       invalid_account_key: "Die extended public key kan niet worden gebruikt. Het moet de volledig gekopieerde mainnet-accountsleutel (xpub, ypub of zpub) zijn die uw wallet exporteert."
-      private_key: "Dat is een private key. Deze is niet opgeslagen of gelogd, en Sure heeft hem nooit nodig. Gebruik een adres of de extended public key van het account (xpub, ypub of zpub)."
+      private_key: "Dat lijkt op een private key of seed phrase. Deze is niet opgeslagen of gelogd, en Sure heeft die nooit nodig. Gebruik een adres of de extended public key van het account (xpub, ypub of zpub)."
       rate_limited: "De openbare explorer beperkt momenteel het aantal verzoeken. Probeer het over een paar minuten opnieuw."
       unexpected: "Er ging iets mis bij het uitlezen van deze wallet. De details zijn vastgelegd voor support."
       unrecognized_address: "Dat lijkt geen adres op een van de ondersteunde netwerken."
