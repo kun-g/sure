@@ -60,6 +60,12 @@ class OnchainWalletItem::Importer
     onchain_wallet_item.chain_adapter(chain).fetch_snapshot(address)
   end
 
+  # The same without transfer history, for screens that only list assets and
+  # wait on the answer.
+  def fetch_assets(chain:, address:)
+    onchain_wallet_item.chain_adapter(chain).fetch_assets(address)
+  end
+
   private
     def apply_snapshot(account, snapshot, chain:, address:)
       asset = snapshot.assets.find { |candidate| account.matches_asset?(candidate) }

@@ -24,6 +24,16 @@ module Onchain::ChainAdapter
     raise NotImplementedError, "#{self.class} must implement #fetch_snapshot"
   end
 
+  # What the address holds, without the transfer history. The linking and token
+  # review screens run on the request thread and only need assets, so a chain
+  # whose history is slow to read should override this. The default reads
+  # everything.
+  # @param address [String]
+  # @return [Onchain::Snapshot]
+  def fetch_assets(address)
+    fetch_snapshot(address)
+  end
+
   # The error classes this chain's data sources raise, as
   # [rate limit class(es), base class(es)]. Either entry may be a single class or
   # an array, because a chain may read through more than one backend.

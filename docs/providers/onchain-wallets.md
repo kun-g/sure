@@ -134,6 +134,10 @@ apart process-wide: a TRON sync takes seconds to a few tens of seconds, and the
 alternative would be a throttled sync. Set `TRONGRID_API_KEY` (a free TronGrid
 key) to lift the spacing to 0.1 seconds.
 
+The screens that list what an address holds (adding a wallet, reviewing tokens)
+read balances and tokens only, so they answer within a few requests; transfer
+history is read by the background sync after linking.
+
 **History is best effort; balances are not.** If a source refuses or times out
 on the paginated history, the balances are still recorded and the history is
 marked incomplete, rather than the whole read failing. This matters on the free

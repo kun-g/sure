@@ -65,22 +65,13 @@ class Onchain::TronAdapter
   end
 
   def fetch_snapshot(address)
-    raise Onchain::Chains::Error, "Invalid TRON address" unless valid_address?(address)
+    read(address, history: true)
+  end
 
-    wrap_provider_errors do
-      account = provider.account(address) || { balance: 0, trc20: [] }
-      tokens = token_assets(account[:trc20])
-      movements = best_effort_movements { movements(address) }
-
-      Onchain::Snapshot.new(
-        assets: [ definition.native_asset(quantity: account[:balance].to_d / SUN_PER_TRX), *tokens ],
-        movements: movements || [],
-        history_truncated: movements.nil? || @history_truncated,
-        assets_truncated: @assets_truncated
-      )
-    rescue Provider::TronGrid::InvalidAddressError
-      raise Onchain::Chains::Error, "Invalid TRON address"
-    end
+  # TronGrid's keyless tier serves one request per second, and history is up to
+  # twenty pages of them: far too slow for a screen that is waiting on the answer.
+  def fetch_assets(address)
+    read(address, history: false)
   end
 
   def provider_error_classes
@@ -89,6 +80,25 @@ class Onchain::TronAdapter
 
   private
     attr_reader :credentials
+
+    def read(address, history:)
+      raise Onchain::Chains::Error, "Invalid TRON address" unless valid_address?(address)
+
+      wrap_provider_errors do
+        account = provider.account(address) || { balance: 0, trc20: [] }
+        tokens = token_assets(account[:trc20])
+        movements = history ? best_effort_movements { movements(address) } : []
+
+        Onchain::Snapshot.new(
+          assets: [ definition.native_asset(quantity: account[:balance].to_d / SUN_PER_TRX), *tokens ],
+          movements: movements || [],
+          history_truncated: history && (movements.nil? || @history_truncated),
+          assets_truncated: @assets_truncated
+        )
+      rescue Provider::TronGrid::InvalidAddressError
+        raise Onchain::Chains::Error, "Invalid TRON address"
+      end
+    end
 
     def definition
       Onchain::Chains.find!(Onchain::Chains::TRON)

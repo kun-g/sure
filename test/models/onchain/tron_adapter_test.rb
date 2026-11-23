@@ -265,6 +265,23 @@ class Onchain::TronAdapterTest < ActiveSupport::TestCase
     assert_requested paged, times: 2
   end
 
+  test "fetch_assets reads balances and tokens and none of the history" do
+    stub_snapshot(account: { "balance" => 3_500_000, "trc20" => [ { USDT => "5927136" } ] })
+
+    snapshot = @adapter.fetch_assets(ADDRESS)
+
+    assert_equal BigDecimal("3.5"), snapshot.find_asset(kind: "native").quantity
+    assert_equal BigDecimal("5.927136"), snapshot.find_asset(kind: "trc20", contract: USDT).quantity
+    assert_empty snapshot.movements
+    assert_not snapshot.history_truncated?
+    assert_not_requested :get, %r{/transactions}
+  end
+
+  test "fetch_assets refuses a malformed address before any request" do
+    assert_raises(Onchain::Chains::Error) { @adapter.fetch_assets("nope") }
+    assert_not_requested :get, /trongrid/
+  end
+
   test "a source that refuses history still yields the balances" do
     stub_request(:get, "#{BASE}/v1/accounts/#{ADDRESS}")
       .to_return(status: 200, body: { data: [ { "balance" => 4_000_000 } ] }.to_json, headers: json_headers)

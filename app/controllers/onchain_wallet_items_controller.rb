@@ -76,7 +76,7 @@ class OnchainWalletItemsController < ApplicationController
 
     return render_new_wallet(t(".errors.already_linked")) if Current.family.onchain_address_linked?(@chain, @address)
 
-    snapshot = fetch_snapshot(@chain, @address)
+    snapshot = fetch_assets(@chain, @address)
     return render_new_wallet(@provider_error) if snapshot.nil?
 
     @assets_truncated = snapshot.assets_truncated?
@@ -93,7 +93,7 @@ class OnchainWalletItemsController < ApplicationController
     @address = Onchain::Chains.canonical_address(@chain, @address)
     return render_new_wallet(t(".errors.already_linked")) if Current.family.onchain_address_linked?(@chain, @address)
 
-    snapshot = fetch_snapshot(@chain, @address)
+    snapshot = fetch_assets(@chain, @address)
     return render_new_wallet(@provider_error) if snapshot.nil?
 
     # The connection is created only now. Reading the address needs none, so a
@@ -127,7 +127,7 @@ class OnchainWalletItemsController < ApplicationController
   # The token screen again, with the address left alone. Without this the only
   # way to stop tracking one asset would be to change the address.
   def review_tokens
-    snapshot = fetch_snapshot(@chain, @address)
+    snapshot = fetch_assets(@chain, @address)
     return redirect_to_manage(alert: @provider_error) if snapshot.nil?
 
     @assets_truncated = snapshot.assets_truncated?
@@ -135,7 +135,7 @@ class OnchainWalletItemsController < ApplicationController
   end
 
   def update_tokens
-    snapshot = fetch_snapshot(@chain, @address)
+    snapshot = fetch_assets(@chain, @address)
     return redirect_to_manage(alert: @provider_error) if snapshot.nil?
 
     result = wallet_linker.revise(snapshot: snapshot, selected_keys: params[:assets])
@@ -229,8 +229,8 @@ class OnchainWalletItemsController < ApplicationController
     # Expected data-source failures become a localized message. Anything else is
     # a bug: the user gets a generic message and the details go to the debug log,
     # never into the response.
-    def fetch_snapshot(chain, address)
-      OnchainWalletItem::Importer.new(preview_item).fetch_snapshot(chain: chain, address: address)
+    def fetch_assets(chain, address)
+      OnchainWalletItem::Importer.new(preview_item).fetch_assets(chain: chain, address: address)
     rescue Onchain::Chains::RateLimitedError
       @provider_error = t("onchain_wallet_items.errors.rate_limited")
       nil
