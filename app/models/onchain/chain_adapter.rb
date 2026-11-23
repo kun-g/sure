@@ -24,6 +24,44 @@ module Onchain::ChainAdapter
     raise NotImplementedError, "#{self.class} must implement #fetch_snapshot"
   end
 
+  # Whether the input is a secret that could spend from a wallet. It is refused
+  # before anything else looks at it. Must never make a network call.
+  def private_key?(_value)
+    false
+  end
+
+  # Whether the input is an account-level public key, from which this chain can
+  # follow a whole wallet. Must never make a network call.
+  def account_key?(_value)
+    false
+  end
+
+  # The accounts an account key may stand for. Each answers #script_type,
+  # #extended_public_key, #reference, #first_address and #covers?(address). More
+  # than one means the key alone does not settle it, and only its owner can.
+  # @raise [Onchain::Chains::Error] when the key cannot be used
+  def accounts_for(_value)
+    raise NotImplementedError, "#{self.class} must implement #accounts_for"
+  end
+
+  # The account a key was linked as.
+  # @raise [Onchain::Chains::Error] when the two do not go together
+  def account_for(_value, _script_type)
+    raise NotImplementedError, "#{self.class} must implement #account_for"
+  end
+
+  # What can be tracked in an account, answered without any request and so with no
+  # quantities: reading an account is too slow to do while a page waits.
+  # @return [Onchain::Snapshot]
+  def account_preview
+    raise NotImplementedError, "#{self.class} must implement #account_preview"
+  end
+
+  # @return [Onchain::Snapshot] everything the account's addresses hold together
+  def fetch_account_snapshot(_account)
+    raise NotImplementedError, "#{self.class} must implement #fetch_account_snapshot"
+  end
+
   # The error classes this chain's data sources raise, as
   # [rate limit class(es), base class(es)]. Either entry may be a single class or
   # an array, because a chain may read through more than one backend.
