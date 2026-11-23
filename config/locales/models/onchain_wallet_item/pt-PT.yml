@@ -12,6 +12,7 @@ pt-PT:
       polkadot: Polkadot
       polygon: Polygon
       solana: Solana
+      tron: TRON
     institution_name: Carteiras de autocustódia
     script_types:
       p2pkh: "Legado (1…, BIP44)"

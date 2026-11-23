@@ -12,6 +12,7 @@ zh-CN:
       polkadot: Polkadot
       polygon: Polygon
       solana: Solana
+      tron: TRON
     institution_name: 自托管钱包
     script_types:
       p2pkh: "传统地址（1…，BIP44）"

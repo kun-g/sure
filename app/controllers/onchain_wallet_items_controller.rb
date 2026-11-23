@@ -250,7 +250,7 @@ class OnchainWalletItemsController < ApplicationController
         render_new_wallet(t("onchain_wallet_items.errors.already_linked"))
       elsif Current.family.onchain_address_covered?(@chain, @address)
         render_new_wallet(t("onchain_wallet_items.errors.address_in_tracked_account"))
-      elsif (snapshot = fetch_snapshot(@chain, @address)).nil?
+      elsif (snapshot = fetch_assets(@chain, @address)).nil?
         render_new_wallet(@provider_error)
       end
 
@@ -286,7 +286,7 @@ class OnchainWalletItemsController < ApplicationController
       @key_account = @onchain_wallet_item.key_account_for(@chain, @address)
       return Onchain::Chains.adapter_for(@chain).account_preview if @key_account
 
-      fetch_snapshot(@chain, @address)
+      fetch_assets(@chain, @address)
     rescue Onchain::Chains::Error
       @provider_error = t("onchain_wallet_items.errors.invalid_account_key")
       nil
@@ -301,8 +301,8 @@ class OnchainWalletItemsController < ApplicationController
     # Expected data-source failures become a localized message. Anything else is
     # a bug: the user gets a generic message and the details go to the debug log,
     # never into the response.
-    def fetch_snapshot(chain, address)
-      OnchainWalletItem::Importer.new(preview_item).fetch_snapshot(chain: chain, address: address)
+    def fetch_assets(chain, address)
+      OnchainWalletItem::Importer.new(preview_item).fetch_assets(chain: chain, address: address)
     rescue Onchain::Chains::RateLimitedError
       @provider_error = t("onchain_wallet_items.errors.rate_limited")
       nil

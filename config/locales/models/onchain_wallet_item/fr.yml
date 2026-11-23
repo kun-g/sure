@@ -12,6 +12,7 @@ fr:
       polkadot: Polkadot
       polygon: Polygon
       solana: Solana
+      tron: TRON
     institution_name: Portefeuilles en autoconservation
     script_types:
       p2pkh: "Historique (1…, BIP44)"

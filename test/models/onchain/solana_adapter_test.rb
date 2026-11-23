@@ -33,6 +33,15 @@ class Onchain::SolanaAdapterTest < ActiveSupport::TestCase
     assert_requested balance, times: 1
   end
 
+  test "a Bitcoin or TRON address is answered no without asking the node" do
+    [ "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa", "TJRabPrwbZy45sbavfcjinPJC18kjpRTv8" ].each do |address|
+      assert @adapter.valid_address?(address), "#{address} fits Solana's text shape"
+      assert_equal false, @adapter.has_activity?(address)
+    end
+
+    assert_not_requested :post, Provider::SolanaRpc.url
+  end
+
   test "an address the node rejects is not detected instead of raising" do
     stub_request(:post, Provider::SolanaRpc.url)
       .to_return(status: 200, body: { "error" => { "message" => "Invalid param: WrongSize" } }.to_json, headers: json_headers)

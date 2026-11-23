@@ -12,6 +12,7 @@ es:
       polkadot: Polkadot
       polygon: Polygon
       solana: Solana
+      tron: TRON
     institution_name: Carteras de autocustodia
     script_types:
       p2pkh: "Heredada (1…, BIP44)"

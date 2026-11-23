@@ -12,6 +12,7 @@ pl:
       polkadot: Polkadot
       polygon: Polygon
       solana: Solana
+      tron: TRON
     institution_name: Portfele niekustodialne
     script_types:
       p2pkh: "Legacy (1…, BIP44)"

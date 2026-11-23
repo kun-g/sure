@@ -12,6 +12,7 @@ ca:
       polkadot: Polkadot
       polygon: Polygon
       solana: Solana
+      tron: TRON
     institution_name: Carteres d'autocustòdia
     script_types:
       p2pkh: "Antiga (1…, BIP44)"

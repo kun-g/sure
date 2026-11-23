@@ -136,6 +136,17 @@ class OnchainWalletItemsControllerTest < ActionDispatch::IntegrationTest
     assert_response :redirect
   end
 
+  test "preview_wallet reads the assets and none of the transfer history" do
+    snapshot = Onchain::Snapshot.new(assets: [ fake_native_asset(quantity: 2) ], movements: [])
+    OnchainTestHelper::FakeAdapter.any_instance.expects(:fetch_assets).with(OnchainTestHelper::FAKE_ADDRESS).returns(snapshot)
+    OnchainTestHelper::FakeAdapter.any_instance.expects(:fetch_snapshot).never
+
+    post preview_wallet_onchain_wallet_items_url, params: { address: OnchainTestHelper::FAKE_ADDRESS }
+
+    assert_response :success
+    assert_select "input[name='assets[]'][value='native']"
+  end
+
   test "preview_wallet lists what the address holds, pre-checking only vouched-for assets" do
     stub_fake_snapshot(
       OnchainTestHelper::FAKE_ADDRESS,

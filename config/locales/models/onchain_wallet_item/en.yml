@@ -12,6 +12,7 @@ en:
       polkadot: Polkadot
       polygon: Polygon
       solana: Solana
+      tron: TRON
     institution_name: Self-custody wallets
     script_types:
       p2pkh: "Legacy (1…, BIP44)"

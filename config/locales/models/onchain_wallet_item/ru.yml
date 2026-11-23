@@ -12,6 +12,7 @@ ru:
       polkadot: Polkadot
       polygon: Polygon
       solana: Solana
+      tron: TRON
     institution_name: Некастодиальные кошельки
     script_types:
       p2pkh: "Legacy (1…, BIP44)"
