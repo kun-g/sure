@@ -194,10 +194,11 @@ module Onchain
         definition.adapter.canonical_address(address)
       end
 
-      # Whether the input is a secret that could spend from a wallet on any chain.
-      # Nothing may store, log or echo it.
-      def private_key?(value)
-        all.any? { |definition| definition.adapter.private_key?(value) }
+      # Whether the input is a secret that could spend from a wallet on any chain:
+      # a private key, or the phrase all of a wallet's keys come from. Nothing may
+      # store, log or echo it.
+      def secret?(value)
+        Onchain::RecoveryPhrase.match?(value) || all.any? { |definition| definition.adapter.private_key?(value) }
       end
 
       # Chains that can follow a whole wallet from this account-level public key.

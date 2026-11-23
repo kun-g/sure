@@ -19,6 +19,17 @@ class Onchain::EvmAdapterTest < ActiveSupport::TestCase
     end
   end
 
+  test "a raw key is recognized, and neither an address nor a public key is one" do
+    key = "4c0883a69102937d6231471b5dbb6204fe5129617082792ae468d01a3f362318"
+    [ key, "0x#{key}", "0X#{key.upcase}", " #{key}\n", "key: #{key}" ].each do |value|
+      assert @adapter.private_key?(value), value
+    end
+
+    [ ADDRESS, "02#{key}", "0x04#{key * 2}", key.chop, "", nil ].each do |value|
+      assert_not @adapter.private_key?(value), value.inspect
+    end
+  end
+
   test "a checksummed address and its lowercase form are one address" do
     assert_equal ADDRESS.downcase, @adapter.canonical_address(ADDRESS)
     assert_equal ADDRESS.downcase, @adapter.canonical_address(" #{ADDRESS.upcase.sub("0X", "0x")} ")

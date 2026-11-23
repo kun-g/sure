@@ -37,7 +37,7 @@ ca:
       already_linked: Aquesta adreça ja se segueix en aquesta xarxa. Fes servir «Revisa els tokens» per canviar quins actius se segueixen.
       chain_unreachable: No s'ha pogut accedir a l'explorador públic d'aquesta xarxa. Torna-ho a provar d'aquí a un moment.
       invalid_account_key: "Aquesta clau pública estesa no es pot fer servir. Ha de ser la clau de compte de la xarxa principal (xpub, ypub o zpub) que exporta la teva cartera, copiada sencera."
-      private_key: "Això és una clau privada. No s'ha desat ni registrat, i Sure no la necessita mai. Fes servir una adreça o la clau pública estesa del compte (xpub, ypub o zpub)."
+      private_key: "Això sembla una clau privada o una frase de recuperació. No s'ha desat ni registrat, i Sure no la necessita mai. Fes servir una adreça o la clau pública estesa del compte (xpub, ypub o zpub)."
       rate_limited: L'explorador públic està limitant les sol·licituds en aquest moment. Torna-ho a provar d'aquí a uns minuts.
       unexpected: S'ha produït un error en llegir aquesta cartera. Els detalls s'han registrat per al servei d'assistència.
       unrecognized_address: No sembla una adreça de cap de les xarxes compatibles.

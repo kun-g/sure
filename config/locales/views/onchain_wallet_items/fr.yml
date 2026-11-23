@@ -37,7 +37,7 @@ fr:
       already_linked: Cette adresse est déjà suivie sur ce réseau. Utilisez « Vérifier les jetons » pour changer les actifs suivis.
       chain_unreachable: L'explorateur public de ce réseau est injoignable. Réessayez dans un instant.
       invalid_account_key: "Cette clé publique étendue ne peut pas être utilisée. Il faut la clé de compte du réseau principal (xpub, ypub ou zpub) exportée par votre portefeuille, copiée en entier."
-      private_key: "Il s'agit d'une clé privée. Elle n'a été ni enregistrée ni journalisée, et Sure n'en a jamais besoin. Utilisez plutôt une adresse ou la clé publique étendue du compte (xpub, ypub ou zpub)."
+      private_key: "Cela ressemble à une clé privée ou à une phrase de récupération. Elle n'a été ni enregistrée ni journalisée, et Sure n'en a jamais besoin. Utilisez plutôt une adresse ou la clé publique étendue du compte (xpub, ypub ou zpub)."
       rate_limited: L'explorateur public limite actuellement le débit des requêtes. Réessayez dans quelques minutes.
       unexpected: Un problème est survenu à la lecture de ce portefeuille. Les détails ont été consignés pour le support.
       unrecognized_address: Cela ne ressemble à une adresse d'aucun réseau pris en charge.

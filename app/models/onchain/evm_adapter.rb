@@ -15,6 +15,8 @@ class Onchain::EvmAdapter
   include Onchain::ChainAdapter
 
   ADDRESS_PATTERN = /\A0x[0-9a-fA-F]{40}\z/
+  # 32 bytes of hex, the raw form of a key on every secp256k1 chain.
+  PRIVATE_KEY_PATTERN = /(?<![0-9A-Za-z])(?:0x)?\h{64}(?![0-9A-Za-z])/i
   NATIVE_DECIMALS = 18
 
   # Below this, a priced holding is dust rather than something the holder is
@@ -34,6 +36,10 @@ class Onchain::EvmAdapter
 
   def valid_address?(address)
     ADDRESS_PATTERN.match?(address.to_s.strip)
+  end
+
+  def private_key?(value)
+    PRIVATE_KEY_PATTERN.match?(value.to_s)
   end
 
   # Hex is hex: the mixed case of a checksummed address carries no identity, so

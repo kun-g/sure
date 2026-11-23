@@ -37,7 +37,7 @@ de:
       already_linked: Diese Adresse wird in diesem Netzwerk bereits verfolgt. Welche Vermögenswerte verfolgt werden, kannst du in der Wallet-Verwaltung ändern.
       chain_unreachable: Der öffentliche Explorer für dieses Netzwerk ist nicht erreichbar. Versuch es gleich noch einmal.
       invalid_account_key: "Dieser erweiterte öffentliche Schlüssel kann nicht verwendet werden. Benötigt wird der vollständig kopierte Mainnet-Kontoschlüssel (xpub, ypub oder zpub), den deine Wallet exportiert."
-      private_key: "Das ist ein privater Schlüssel. Er wurde weder gespeichert noch protokolliert, und Sure benötigt ihn nie. Verwende stattdessen eine Adresse oder den erweiterten öffentlichen Schlüssel des Kontos (xpub, ypub oder zpub)."
+      private_key: "Das sieht nach einem privaten Schlüssel oder einer Seed-Phrase aus. Die Eingabe wurde weder gespeichert noch protokolliert, und Sure benötigt so etwas nie. Verwende stattdessen eine Adresse oder den erweiterten öffentlichen Schlüssel des Kontos (xpub, ypub oder zpub)."
       rate_limited: Der öffentliche Explorer begrenzt derzeit die Anzahl der Anfragen. Versuch es in ein paar Minuten erneut.
       unexpected: Beim Lesen dieser Wallet ist etwas schiefgelaufen. Die Details wurden für den Support erfasst.
       unrecognized_address: Diese Adresse scheint zu keinem unterstützten Netzwerk zu gehören.

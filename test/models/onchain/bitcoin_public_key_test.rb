@@ -89,12 +89,43 @@ class Onchain::BitcoinPublicKeyTest < ActiveSupport::TestCase
       uprv91G7gZkzehuMVxDJTYE6tLivdF8e4rvzSu1LFfKw3b2Qx1Aj8vpoFnHdfUZ3hmi9jsvPifmZ24RTN2KhwB8BfMLTVqaBReibyaFFcTP1s9n
       Zprvtruncated
       wpkh([73c5da0a/84h/0h/0h]xprv9xpXFhFpqdQK3TmytPBqXtGSwS3DLjojFhTGht8gwAAii8py5X6pxeBnQ6ehJiyJ6nDjWGJfZ95WxByFXVkDxHXrqu53WCRGypk2ttuqncb/0/*)
+      tprv8fVU32aAEuEPeH1WYx3LhXtSFZTRaFqjbFNPaJZ9R8fCVja44tSaUPZEKGpMK6McUDkWWMvRiVfKR3Wzei6AmLoTNYHMAZ9KtvVTLZZdhvA
       KyZpNDKnfs94vbrwhJneDi77V6jF64PWPF8x5cdJb8ifgg2DUc9d
     ].each { |value| assert Onchain::BitcoinPublicKey.private_key?(" #{value}\n"), value }
 
     [ ZPUB, XPUB, RECEIVE, "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045", "" ].each do |value|
       assert_not Onchain::BitcoinPublicKey.private_key?(value), value
     end
+  end
+
+  test "recognizes WIF of either network, mistyped or wrapped in something else" do
+    # The private key 1, in every encoding of it.
+    [
+      "5HpHagT65TZzG1PH3CSu63k8DbpvD8s5ip4nEB3kEsreAnchuDf",
+      "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn",
+      "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgwmaKkrx",
+      "cMahea7zqjxrtgAbB7LSGbcQUr1uX1ojuat9jZodMN87JcbXMTcA"
+    ].each do |wif|
+      [ wif, " #{wif}\n", wif.chop, "#{wif}x", wif.sub(/.\z/, "0"), "p2wpkh:#{wif}", "wpkh(#{wif})", "key: \"#{wif}\"" ].each do |value|
+        assert Onchain::BitcoinPublicKey.private_key?(value), value
+      end
+    end
+  end
+
+  # Addresses of other chains reach this check too, and some start like a WIF.
+  test "an address or a public key is never taken for a private key" do
+    [
+      ZPUB, XPUB, RECEIVE, SECOND, CHANGE,
+      "tpubD6NzVbkrYhZ4XgiXtGrdW5XDAPFCL9h7we1vwNCpn8tGbBcgfVYjXyhWo4E1xkh56hjod1RhGjxbaTLV3X4FyWuejifB9jusQ46QzG87VKp",
+      "1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2",
+      "3J98t1WpEZ73CNmQviecrnyiWrnqRhWNLy",
+      "bc1p5cyxnuxmeuwuvkwfem96lqzszd02n6xdcjrs20cac6yqjjwudpxqkedrcr",
+      "cosmos1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq",
+      "cosmos1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq",
+      "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
+      "5Q544fKrFoe6tsEbD7S8EmxGTJYAKtTVhAW5Q5pge4j1",
+      "15oF4uVJwmo4TdGW7VfQxNLavjCXviqxT9S1MgbjMNHr6Sp5"
+    ].each { |value| assert_not Onchain::BitcoinPublicKey.private_key?(value), value }
   end
 
   test "derives official BIP84 receive and change addresses" do

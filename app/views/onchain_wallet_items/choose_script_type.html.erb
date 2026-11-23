@@ -32,7 +32,9 @@
                             label: t(".known_address_label"),
                             help_text: t(".known_address_hint"),
                             value: @selection.known_address,
-                            autocomplete: "off" %>
+                            autocomplete: "off",
+                            autocapitalize: "none",
+                            spellcheck: "false" %>
 
         <div class="flex justify-end">
           <%= form.submit t(".continue") %>

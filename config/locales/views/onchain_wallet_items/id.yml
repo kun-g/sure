@@ -37,7 +37,7 @@ id:
       already_linked: Alamat tersebut sudah dilacak di jaringan ini. Gunakan Tinjau token untuk mengubah aset yang dilacak.
       chain_unreachable: Penjelajah publik untuk jaringan ini tidak dapat dijangkau. Coba lagi sebentar lagi.
       invalid_account_key: "Extended public key tersebut tidak dapat digunakan. Harus berupa kunci akun mainnet (xpub, ypub, atau zpub) yang diekspor dompet Anda, disalin secara lengkap."
-      private_key: "Itu adalah private key. Kunci tersebut tidak disimpan atau dicatat, dan Sure tidak pernah membutuhkannya. Gunakan alamat atau extended public key akun (xpub, ypub, atau zpub)."
+      private_key: "Itu tampak seperti private key atau seed phrase. Data tersebut tidak disimpan atau dicatat, dan Sure tidak pernah membutuhkannya. Gunakan alamat atau extended public key akun (xpub, ypub, atau zpub)."
       rate_limited: Penjelajah publik sedang membatasi permintaan saat ini. Coba lagi dalam beberapa menit.
       unexpected: Terjadi kesalahan saat membaca dompet ini. Detail telah dicatat untuk bantuan teknis.
       unrecognized_address: Alamat tersebut tidak tampak seperti alamat di jaringan mana pun yang didukung.

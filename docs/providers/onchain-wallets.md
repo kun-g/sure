@@ -257,9 +257,15 @@ see every past and future address of the account, so Sure stores it encrypted li
 an API key — set the Active Record encryption keys on a self-hosted instance — and
 never shows it again; accounts and logs carry a fingerprint instead. The derived
 addresses are looked up at the explorer, which can tell that they belong together.
-Point `MEMPOOL_SPACE_URL` at your own instance to avoid that. Private keys (`xprv`,
-`yprv`, `zprv`, WIF) are refused wherever an address can be pasted, and never stored
-or logged.
+Point `MEMPOOL_SPACE_URL` at your own instance to avoid that.
+
+**Pasted secrets.** Anything that looks like a private key (`xprv`, `yprv`, `zprv`
+and their testnet forms, WIF of either network, 64 hex digits, a Base58 Solana
+keypair) or like a seed phrase is refused wherever an address can be pasted, and
+never stored, logged or shown again. Keys are told by their shape, checksum intact or
+not. A seed phrase is told by six or more words, without a word list, so that a
+misspelled, incomplete or non-English phrase is refused too; the price is that a
+sentence pasted into the field is also answered as a possible seed phrase.
 
 ## Managing a wallet
 

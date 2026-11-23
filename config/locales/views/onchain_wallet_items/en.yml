@@ -37,7 +37,7 @@ en:
       already_linked: That address is already being tracked on this network. Use Review tokens to change which assets are tracked.
       chain_unreachable: The public explorer for this network could not be reached. Try again in a moment.
       invalid_account_key: "That extended public key cannot be used. It has to be the mainnet account key (xpub, ypub or zpub) your wallet exports, copied in full."
-      private_key: "That is a private key. It was not stored or logged, and Sure never needs it. Use an address or the account's extended public key (xpub, ypub or zpub) instead."
+      private_key: "That looks like a private key or seed phrase. It was not stored or logged, and Sure never needs one. Use an address or the account's extended public key (xpub, ypub or zpub) instead."
       rate_limited: The public explorer is rate limiting requests right now. Try again in a few minutes.
       unexpected: Something went wrong reading this wallet. The details were recorded for support.
       unrecognized_address: That does not look like an address on any supported network.

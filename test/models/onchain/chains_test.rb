@@ -89,10 +89,25 @@ class Onchain::ChainsTest < ActiveSupport::TestCase
     assert_equal [ "native", OnchainTestHelper::FAKE_TOKEN_KIND ], fake_chain.asset_kinds
   end
 
-  test "a private key is recognized whatever chain it belongs to" do
-    assert Onchain::Chains.private_key?(BIP84_ZPRV)
-    assert_not Onchain::Chains.private_key?(BIP84_ZPUB)
-    assert_not Onchain::Chains.private_key?("0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045")
+  test "a secret is recognized whatever chain it belongs to" do
+    [
+      BIP84_ZPRV,
+      "cMahea7zqjxrtgAbB7LSGbcQUr1uX1ojuat9jZodMN87JcbXMTcA",
+      "0x#{"4c" * 32}",
+      "2Ana1pUpv2ZbMVkwF5FXapYeBEjdxDatLn7nvJkhgTSXbs59SyZSx866bXirPgj8QQVB57uxHJBG1YFvkRbFj4T",
+      "#{"abandon " * 11}about"
+    ].each { |value| assert Onchain::Chains.secret?(value), value }
+
+    [
+      BIP84_ZPUB,
+      BIP84_XPUB,
+      "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045",
+      "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
+      "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
+      OnchainTestHelper::FAKE_ADDRESS,
+      "",
+      nil
+    ].each { |value| assert_not Onchain::Chains.secret?(value), value.inspect }
   end
 
   test "only Bitcoin accepts account keys, and no chain takes one for an address" do

@@ -9,7 +9,7 @@ class OnchainWalletItemsController < ApplicationController
                 only: %i[update destroy sync manage review_tokens update_tokens
                          disconnect_wallet disconnect_asset]
   before_action :set_wallet, only: %i[review_tokens update_tokens disconnect_wallet]
-  before_action :refuse_private_key, only: %i[preview_wallet link_wallet]
+  before_action :refuse_secret, only: %i[preview_wallet link_wallet]
 
   def update
     if @onchain_wallet_item.update(onchain_wallet_item_params)
@@ -212,8 +212,8 @@ class OnchainWalletItemsController < ApplicationController
     end
 
     # A secret is turned away before anything parses, stores or shows it again.
-    def refuse_private_key
-      return if [ params[:address], params[:known_address] ].none? { |value| Onchain::Chains.private_key?(value) }
+    def refuse_secret
+      return if [ params[:address], params[:known_address] ].none? { |value| Onchain::Chains.secret?(value) }
 
       @address = nil
       render_new_wallet(t("onchain_wallet_items.errors.private_key"))
