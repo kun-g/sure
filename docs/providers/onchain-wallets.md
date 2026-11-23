@@ -271,6 +271,13 @@ between accounts: staking, resource delegation and smart-contract calls are not
 movements of the balance Sure records, so a TRX balance can differ from the sum
 of its imported transfers.
 
+**A TRON address that was never activated can still hold tokens.** Receiving a
+TRC20 token does not activate an address, and TronGrid's account endpoint answers
+an empty list for one. For such an address Sure asks the USDT and USDC contracts
+for its balance directly; any other token on it stays unseen until the address is
+activated (by receiving TRX). Automatic network detection also does not count
+such an address as active, so pick TRON in the network list.
+
 **Cosmos Hub has no transfer history.** Public nodes do not index
 transactions, so only the ATOM balance is read: spendable, staked and unbonding,
 but not unclaimed rewards or IBC tokens. Past transfers are not

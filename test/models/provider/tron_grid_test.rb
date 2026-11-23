@@ -163,6 +163,26 @@ class Provider::TronGridTest < ActiveSupport::TestCase
     assert_not @provider.trc20_transfers(ADDRESS, max_pages: 3)[:truncated]
   end
 
+  test "trc20_balance asks the contract with the address as its argument" do
+    request = stub_request(:post, "#{BASE}/wallet/triggerconstantcontract")
+      .with(body: hash_including(
+        "contract_address" => USDT,
+        "function_selector" => "balanceOf(address)",
+        "parameter" => Onchain::BitcoinPublicKey.base58check_decode(ADDRESS)[1, 20].unpack1("H*").rjust(64, "0")
+      ))
+      .to_return(status: 200, body: { constant_result: [ "a7a3582000".rjust(64, "0") ] }.to_json, headers: json_headers)
+
+    assert_equal "720000000000", @provider.trc20_balance(USDT, ADDRESS)
+    assert_requested request
+  end
+
+  test "trc20_balance refuses a reply that carries no balance" do
+    stub_request(:post, "#{BASE}/wallet/triggerconstantcontract")
+      .to_return(status: 200, body: { result: { code: "CONTRACT_VALIDATE_ERROR" } }.to_json, headers: json_headers)
+
+    assert_raises(Provider::TronGrid::ApiError) { @provider.trc20_balance(USDT, ADDRESS) }
+  end
+
   test "token_decimals reads decimals() from the contract" do
     stub_decimals(USDT, "0000000000000000000000000000000000000000000000000000000000000006")
 

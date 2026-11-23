@@ -104,11 +104,30 @@ class Onchain::TronAdapterTest < ActiveSupport::TestCase
   test "an address TRON has not seen yet reads as an empty wallet" do
     stub_request(:get, "#{BASE}/v1/accounts/#{ADDRESS}").to_return(status: 200, body: { data: [], success: true }.to_json, headers: json_headers)
     stub_snapshot(account: nil)
+    stub_balance_of(USDT, 0)
+    stub_balance_of(USDC, 0)
 
     snapshot = @adapter.fetch_snapshot(ADDRESS)
 
     assert_equal [ BigDecimal("0") ], snapshot.assets.map(&:quantity)
     assert snapshot.find_asset(kind: "native")
+  end
+
+  test "an address that was never activated can still hold USDT" do
+    # Receiving a TRC20 token does not activate an address, so TronGrid's account
+    # endpoint answers an empty list for a wallet that holds 720,000 USDT.
+    stub_request(:get, "#{BASE}/v1/accounts/#{ADDRESS}").to_return(status: 200, body: { data: [], success: true }.to_json, headers: json_headers)
+    stub_snapshot(account: nil)
+    stub_balance_of(USDT, 720_000_000_000)
+    stub_balance_of(USDC, 0)
+
+    [ @adapter.fetch_assets(ADDRESS), @adapter.fetch_snapshot(ADDRESS) ].each do |snapshot|
+      assert_equal BigDecimal("0"), snapshot.find_asset(kind: "native").quantity
+      usdt = snapshot.find_asset(kind: "trc20", contract: USDT)
+      assert_equal BigDecimal("720000"), usdt.quantity
+      assert_equal "USDT", usdt.symbol
+      assert_nil snapshot.find_asset(kind: "trc20", contract: USDC)
+    end
   end
 
   test "a contract that only calls itself USDT gets no ticker and no value" do
@@ -358,6 +377,12 @@ class Onchain::TronAdapterTest < ActiveSupport::TestCase
       stub_request(:get, "#{BASE}/v1/accounts/#{ADDRESS}/transactions/trc20")
         .with(query: hash_including("only_confirmed" => "true"))
         .to_return(status: 200, body: { data: trc20, meta: {} }.to_json, headers: json_headers)
+    end
+
+    def stub_balance_of(contract, raw)
+      stub_request(:post, "#{BASE}/wallet/triggerconstantcontract")
+        .with(body: hash_including("contract_address" => contract, "function_selector" => "balanceOf(address)"))
+        .to_return(status: 200, body: { constant_result: [ raw.to_s(16).rjust(64, "0") ] }.to_json, headers: json_headers)
     end
 
     def hex_of(address)

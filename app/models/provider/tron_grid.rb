@@ -136,6 +136,29 @@ class Provider::TronGrid
     { transfers: transfers, truncated: truncated }
   end
 
+  # What `address` holds of a token, read from the contract itself.
+  # TronGrid's account endpoint knows nothing of an address that has never been
+  # activated, and receiving a TRC20 token does not activate one: such an address
+  # can hold tokens while the account endpoint answers an empty list.
+  # @return [String] the raw amount, in the token's smallest unit
+  def trc20_balance(contract, address)
+    owner = Onchain::BitcoinPublicKey.base58check_decode(address)
+    raise InvalidAddressError, "Invalid TRON address" if owner.nil?
+
+    body = post_json(
+      "/wallet/triggerconstantcontract",
+      owner_address: address,
+      contract_address: contract,
+      function_selector: "balanceOf(address)",
+      parameter: owner[1, 20].unpack1("H*").rjust(64, "0"),
+      visible: true
+    )
+    hex = Array(body["constant_result"]).first.to_s
+    raise ApiError, "TronGrid returned no balance" unless hex.match?(/\A[0-9a-f]{1,64}\z/)
+
+    hex.to_i(16).to_s
+  end
+
   # The token contract's own decimals(), or nil when it has none.
   def token_decimals(contract)
     body = post_json(

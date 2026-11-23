@@ -87,7 +87,7 @@ class Onchain::TronAdapter
       raise Onchain::Chains::Error, "Invalid TRON address" unless valid_address?(address)
 
       wrap_provider_errors do
-        account = provider.account(address) || { balance: 0, trc20: [] }
+        account = provider.account(address) || unactivated_account(address)
         tokens = token_assets(account[:trc20], new_lookups: history ? MAX_NEW_DECIMAL_LOOKUPS : 0)
         movements = history ? best_effort_movements { movements(address) } : []
 
@@ -108,6 +108,18 @@ class Onchain::TronAdapter
 
     def provider
       @provider ||= Provider::TronGrid.new
+    end
+
+    # An address TronGrid has no account for holds no TRX, but may still hold
+    # tokens: receiving one does not activate it. Only the listed contracts can be
+    # asked, one request each; any other token on such an address stays unseen
+    # until the address is activated.
+    def unactivated_account(address)
+      balances = TRUSTED_TOKENS.keys.map do |contract|
+        { contract: contract, raw_amount: provider.trc20_balance(contract, address) }
+      end
+
+      { balance: 0, trc20: balances }
     end
 
     # Detection runs on the request thread, so it reads with the detection
