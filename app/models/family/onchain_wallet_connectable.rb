@@ -37,10 +37,28 @@ module Family::OnchainWalletConnectable
   # nowhere, so counting it here would refuse the address with nothing to show
   # for it.
   def onchain_address_linked?(chain, address)
-    OnchainWalletAccount
-      .where(onchain_wallet_item: onchain_wallet_items.active)
-      .for_wallet(chain, address)
-      .linked
-      .exists?
+    linked_onchain_accounts(chain).for_wallet(chain, address).exists?
   end
+
+  # True when an address belongs to an account the family already tracks by its
+  # key: tracking it as well would count its coins twice.
+  def onchain_address_covered?(chain, address)
+    linked_onchain_accounts(chain).with_account_key.any? do |row|
+      row.key_account.covers?(address)
+    rescue Onchain::Chains::Error
+      # A key that cannot be read covers nothing; its own sync reports it.
+      false
+    end
+  end
+
+  # The reverse: addresses tracked on their own that an account would count again.
+  def onchain_addresses_inside(chain, key_account)
+    linked_onchain_accounts(chain).without_account_key.distinct.pluck(:wallet_address)
+      .select { |address| key_account.covers?(address) }
+  end
+
+  private
+    def linked_onchain_accounts(chain)
+      OnchainWalletAccount.where(onchain_wallet_item: onchain_wallet_items.active, chain: chain).linked
+    end
 end

@@ -34,9 +34,14 @@ class Provider::MempoolSpace
   # everything.
   attr_reader :truncated
 
+  # How many pages the last history walk took, for a caller that spreads one
+  # budget over several addresses.
+  attr_reader :pages_read
+
   def initialize(max_pages: DEFAULT_MAX_PAGES)
     @max_pages = max_pages
     @truncated = false
+    @pages_read = 0
   end
 
   # Address summary: confirmed and mempool funded/spent totals.
@@ -45,20 +50,20 @@ class Provider::MempoolSpace
   end
 
   # Confirmed transactions, newest first, plus anything still in the mempool.
-  def get_address_transactions(address)
+  def get_address_transactions(address, max_pages: @max_pages)
     encoded = ERB::Util.url_encode(address)
     page = Array(get_json("/address/#{encoded}/txs"))
     transactions = page.dup
-    pages_read = 1
+    @pages_read = 1
     @truncated = false
 
-    while page.size >= PAGE_SIZE && pages_read < @max_pages
+    while page.size >= PAGE_SIZE && @pages_read < max_pages
       last_txid = page.last["txid"]
       break if last_txid.blank?
 
       page = Array(get_json("/address/#{encoded}/txs/chain/#{last_txid}"))
       transactions.concat(page)
-      pages_read += 1
+      @pages_read += 1
     end
 
     @truncated = page.size >= PAGE_SIZE

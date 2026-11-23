@@ -16,12 +16,16 @@ class OnchainWalletItem::WalletLinker
     end
   end
 
-  attr_reader :onchain_wallet_item, :chain, :address
+  attr_reader :onchain_wallet_item, :chain, :address, :key_account
 
-  def initialize(onchain_wallet_item, chain:, address:)
+  # key_account: the account to follow when the wallet is one, in which case
+  # `address` is its reference. Held here because revising a wallet may remove the
+  # very rows its key is stored on before creating new ones.
+  def initialize(onchain_wallet_item, chain:, address:, key_account: nil)
     @onchain_wallet_item = onchain_wallet_item
     @chain = chain
     @address = address
+    @key_account = key_account
   end
 
   def link(snapshot:, selected_keys:)
@@ -122,12 +126,15 @@ class OnchainWalletItem::WalletLinker
         onchain_account = onchain_wallet_item.onchain_wallet_accounts.create!(
           chain: chain,
           wallet_address: address,
+          extended_public_key: key_account&.extended_public_key,
+          script_type: key_account&.script_type,
           asset_kind: asset.kind,
           contract_address: asset.contract,
           symbol: asset.symbol,
           name: asset.name,
           decimals: asset.decimals,
-          quantity: asset.quantity,
+          # Unknown until the first sync when the wallet is previewed unread.
+          quantity: asset.quantity || 0,
           currency: onchain_wallet_item.family.currency
         )
 

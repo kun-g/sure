@@ -1,0 +1,43 @@
+<%= render DS::Dialog.new do |dialog| %>
+  <% dialog.with_header(title: t(".title"), subtitle: t(".subtitle")) %>
+
+  <% dialog.with_body do %>
+    <div class="space-y-4">
+      <%= render DS::Alert.new(variant: :info, message: t(".explanation")) %>
+
+      <% if @selection.error %>
+        <%= render DS::Alert.new(variant: :error, message: t(".errors.#{@selection.error}")) %>
+      <% end %>
+
+      <%= styled_form_with url: preview_wallet_onchain_wallet_items_path,
+                           method: :post,
+                           data: { turbo_frame: "modal" },
+                           class: "space-y-4" do |form| %>
+        <%= hidden_field_tag :address, @address, autocomplete: "off" %>
+        <%= hidden_field_tag :chain, @chain %>
+
+        <fieldset class="space-y-2">
+          <legend class="text-sm font-medium text-primary mb-2"><%= t(".script_type_legend") %></legend>
+          <% @selection.candidates.each do |account| %>
+            <%= render "goals/radio_card",
+                       form: form,
+                       attribute: :script_type,
+                       value: account.script_type,
+                       label: OnchainWalletAccount.script_type_label(account.script_type),
+                       hint: tag.span(t(".first_address", address: account.first_address), class: "break-all") %>
+          <% end %>
+        </fieldset>
+
+        <%= form.text_field :known_address,
+                            label: t(".known_address_label"),
+                            help_text: t(".known_address_hint"),
+                            value: @selection.known_address,
+                            autocomplete: "off" %>
+
+        <div class="flex justify-end">
+          <%= form.submit t(".continue") %>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+<% end %>

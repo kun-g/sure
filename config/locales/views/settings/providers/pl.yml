@@ -256,7 +256,7 @@ pl:
           tylko podnosi limit zapytań dla Ethereum.
         keep_etherscan_api_key: Zostaw puste, aby zachować obecny klucz
         keyless_body: Sure wyłącznie odczytuje publiczne dane blockchaina. Nie są
-          potrzebne żadne klucze, frazy seed ani podpisy, i nic nie może zostać wydane.
+          potrzebne żadne klucze prywatne, frazy seed ani podpisy, i nic nie może zostać wydane.
         keyless_title: Tylko odczyt, bez wymaganych kluczy
         manage_wallets: Zarządzaj portfelami
         save: Zapisz

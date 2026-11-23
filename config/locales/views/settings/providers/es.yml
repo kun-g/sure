@@ -202,7 +202,7 @@ es:
         etherscan_hint: Ethereum se lee sin clave. Añadir una clave de Etherscan solo sube el límite de peticiones de Ethereum.
         keep_etherscan_api_key: Déjalo en blanco para conservar la clave actual
         manage_wallets: Gestionar carteras
-        keyless_body: Sure solo lee datos públicos de la cadena. No intervienen claves, frases semilla ni firmas, y no se puede gastar nada.
+        keyless_body: Sure solo lee datos públicos de la cadena. No intervienen claves privadas, frases semilla ni firmas, y no se puede gastar nada.
         keyless_title: Solo lectura, sin claves
         save: Guardar
         sync_start_date_hint: Las transferencias anteriores a esta fecha se ignoran. Déjalo en blanco para importar todo lo que muestre el explorador.

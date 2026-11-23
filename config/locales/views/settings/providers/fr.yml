@@ -254,7 +254,7 @@ fr:
         etherscan_api_key_placeholder: Collez une clé d'API Etherscan
         etherscan_hint: La lecture d'Ethereum fonctionne sans clé. Ajouter une clé Etherscan ne fait qu'augmenter la limite de débit pour Ethereum.
         keep_etherscan_api_key: Laissez vide pour conserver la clé existante
-        keyless_body: Sure ne lit que des données publiques de la chaîne. Aucune clé, phrase de récupération ni signature n'est en jeu, et rien ne peut être dépensé.
+        keyless_body: Sure ne lit que des données publiques de la chaîne. Aucune clé privée, phrase de récupération ni signature n'est en jeu, et rien ne peut être dépensé.
         keyless_title: Lecture seule, aucune clé requise
         manage_wallets: Gérer les portefeuilles
         save: Enregistrer

@@ -7,6 +7,18 @@ en:
       no_activity_found: Nothing found
       subtitle: "%{address}"
       title: Which network?
+    choose_script_type:
+      continue: "Continue"
+      errors:
+        known_address_mismatch: "That address is not among the first addresses this key derives for that type. Check that both come from the same account."
+        script_type_unsupported: "This key cannot be used with that address type."
+      explanation: "The same extended public key derives different addresses for each type. Pick the one whose first address matches the first receiving address in your wallet; with the wrong one, the wallet would look empty."
+      first_address: "First receiving address: %{address}"
+      known_address_hint: "Any receiving or change address among its first 100. It is only compared with the addresses the key derives."
+      known_address_label: "Or an address from this wallet"
+      script_type_legend: "Address type"
+      subtitle: "This key does not say which addresses its wallet uses."
+      title: "Which kind of addresses?"
     destroy:
       success: Scheduled the self-custody connection for deletion.
     disconnect_asset:
@@ -19,9 +31,13 @@ en:
       not_self_hosted: Market data providers are configured by the instance operator on this deployment.
       success: Crypto prices are enabled. Wallet values appear after the next sync.
     errors:
+      account_contains_tracked_address: "This account includes %{addresses}, which is already tracked on its own, so its coins would be counted twice. Stop tracking it under Manage wallets and delete its account, then add this one."
+      address_in_tracked_account: "That address belongs to an account that is already tracked by its extended public key, so its coins are counted already."
       address_required: Enter a wallet address.
       already_linked: That address is already being tracked on this network. Use Review tokens to change which assets are tracked.
       chain_unreachable: The public explorer for this network could not be reached. Try again in a moment.
+      invalid_account_key: "That extended public key cannot be used. It has to be the mainnet account key (xpub, ypub or zpub) your wallet exports, copied in full."
+      private_key: "That is a private key. It was not stored or logged, and Sure never needs it. Use an address or the account's extended public key (xpub, ypub or zpub) instead."
       rate_limited: The public explorer is rate limiting requests right now. Try again in a few minutes.
       unexpected: Something went wrong reading this wallet. The details were recorded for support.
       unrecognized_address: That does not look like an address on any supported network.
@@ -35,6 +51,7 @@ en:
         one: Tracking 1 asset from this wallet.
         other: "Tracking %{count} assets from this wallet."
     manage:
+      addresses_truncated: "This wallet has more addresses than one sync looks at, so its balance may be higher than shown and its transfers are not imported."
       assets_truncated: "This address holds more tokens than one read surfaces, so only the %{count} most credible are listed. Anything already tracked keeps syncing."
       disconnect_asset: Stop tracking
       disconnect_asset_confirm: "Stop tracking %{symbol}? Its account and history are kept and stop updating."
@@ -48,9 +65,10 @@ en:
       subtitle: Every address this connection reads, and what it tracks at each.
       title: Manage self-custody wallets
     new_wallet:
-      address_label: Wallet address
-      address_placeholder: bc1..., 0x..., or a Solana address
-      bitcoin_single_address_note: Bitcoin is tracked one address at a time. Extended keys (xpub/ypub/zpub) are not supported, so a wallet that spreads funds across derived addresses will show only the balance of the address you enter.
+      account_key_privacy_note: "An extended public key cannot spend, but whoever has it can see every address of the account. It is stored encrypted, and the addresses it derives are looked up on the block explorer."
+      address_label: "Wallet address or extended public key"
+      address_placeholder: "bc1..., xpub..., 0x..., or a Solana address"
+      bitcoin_single_address_note: "A Bitcoin address tracks that address alone. To track a whole wallet, paste the account's extended public key (xpub, ypub or zpub): its receiving and change addresses are found from it and added up."
       chain_auto_detect: Detect automatically
       chain_label: Network
       continue: Continue
@@ -97,10 +115,12 @@ en:
     token_review_form:
       assets_truncated: "This address holds more tokens than one read surfaces, so only the %{count} most credible are listed."
       cancel: Cancel
+      check_first_address: "Check that this is the first receiving address in your wallet"
       explanation: Assets with a known price are ticked. Anything else is left unticked — wallets collect spam airdrops, and tracking one has no value attached to it.
       native: Native
       no_price: No price available; tracked by quantity only
       nothing_found: This address holds nothing we can see on this network.
+      quantity_after_sync: "Read on first sync"
     update:
       success: Updated the self-custody connection.
     update_tokens:

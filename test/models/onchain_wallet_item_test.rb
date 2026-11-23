@@ -3,7 +3,7 @@
 require "test_helper"
 
 class OnchainWalletItemTest < ActiveSupport::TestCase
-  include OnchainTestHelper, ActiveJob::TestHelper
+  include OnchainTestHelper, BitcoinExplorerTestHelper, ActiveJob::TestHelper
 
   setup do
     register_fake_chain!
@@ -52,6 +52,40 @@ class OnchainWalletItemTest < ActiveSupport::TestCase
 
     assert_equal [ OnchainTestHelper::FAKE_CHAIN ], matches.map { |definition, _adapter| definition.key }
     assert_empty @item.matching_chain_adapters("nope")
+  end
+
+  test "an address inside a tracked account is recognized as already counted" do
+    account = bitcoin_account
+    link_onchain_wallet_account!(create_bitcoin_account_row(item: @item, account: account))
+
+    assert @family.onchain_address_covered?(Onchain::Chains::BITCOIN, account.address(1, 3))
+    assert_not @family.onchain_address_covered?(Onchain::Chains::BITCOIN, bitcoin_account("p2tr").address(0, 0))
+    assert_not families(:empty).onchain_address_covered?(Onchain::Chains::BITCOIN, account.address(1, 3))
+  end
+
+  test "addresses tracked on their own are found inside an account" do
+    account = bitcoin_account
+    own, foreign = account.address(0, 2), "bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq"
+    bitcoin = Onchain::Chains.find!(Onchain::Chains::BITCOIN)
+    [ own, foreign ].each do |address|
+      link_onchain_wallet_account!(
+        create_onchain_wallet_account(item: @item, asset: bitcoin.native_asset(quantity: 1), chain: bitcoin.key, address: address)
+      )
+    end
+
+    assert_equal [ own ], @family.onchain_addresses_inside(bitcoin.key, account)
+    assert_empty @family.onchain_addresses_inside(bitcoin.key, bitcoin_account("p2tr"))
+  end
+
+  test "addresses nobody tracks any more do not stand in an account's way" do
+    account = bitcoin_account
+    bitcoin = Onchain::Chains.find!(Onchain::Chains::BITCOIN)
+    # Orphans: rows without a Sure account behind them.
+    create_onchain_wallet_account(item: @item, asset: bitcoin.native_asset(quantity: 1), chain: bitcoin.key, address: account.address(0, 2))
+    create_bitcoin_account_row(item: @item, account: account)
+
+    assert_empty @family.onchain_addresses_inside(bitcoin.key, account)
+    assert_not @family.onchain_address_covered?(bitcoin.key, account.address(0, 3))
   end
 
   test "destroy_later flags the item and enqueues destruction" do

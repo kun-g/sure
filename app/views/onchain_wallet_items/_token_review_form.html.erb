@@ -11,7 +11,14 @@
                        data: { turbo_frame: turbo_frame },
                        class: "space-y-4" do |form| %>
     <%= hidden_field_tag :chain, chain %>
-    <%= hidden_field_tag :address, address %>
+    <%= hidden_field_tag :address, address, autocomplete: "off" %>
+
+    <% if local_assigns[:key_account] %>
+      <%= hidden_field_tag :script_type, key_account.script_type %>
+      <%= render DS::Alert.new(variant: :info, title: t("onchain_wallet_items.token_review_form.check_first_address")) do %>
+        <span class="break-all"><%= key_account.first_address %></span>
+      <% end %>
+    <% end %>
 
     <%= render DS::Alert.new(variant: :info, message: t("onchain_wallet_items.token_review_form.explanation")) %>
 
@@ -45,7 +52,11 @@
               <% end %>
             </div>
             <p class="text-sm font-medium text-primary shrink-0 tabular-nums">
-              <%= number_with_delimiter(row.asset.quantity.round(8).to_s("F")) %>
+              <% if row.quantity %>
+                <%= number_with_delimiter(row.quantity.round(8).to_s("F")) %>
+              <% else %>
+                <%= t("onchain_wallet_items.token_review_form.quantity_after_sync") %>
+              <% end %>
             </p>
           </label>
         <% end %>

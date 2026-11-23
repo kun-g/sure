@@ -185,6 +185,17 @@ module Onchain
         definition.adapter.canonical_address(address)
       end
 
+      # Whether the input is a secret that could spend from a wallet on any chain.
+      # Nothing may store, log or echo it.
+      def private_key?(value)
+        all.any? { |definition| definition.adapter.private_key?(value) }
+      end
+
+      # Chains that can follow a whole wallet from this account-level public key.
+      def accepting_account_key(value)
+        all.select { |definition| definition.adapter.account_key?(value) }
+      end
+
       # Chains whose address format accepts this string. A 0x address matches
       # every EVM network, which is what makes chain detection necessary.
       def matching(address)

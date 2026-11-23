@@ -10,6 +10,7 @@ class OnchainWalletItemsLocalizationTest < ActionDispatch::IntegrationTest
   TRANSLATED_SCOPES = %w[
     onchain_wallet_items
     settings.providers.onchain_wallet_panel
+    onchain.script_types
   ].freeze
 
   TRANSLATED_KEYS = %w[
@@ -117,7 +118,7 @@ class OnchainWalletItemsLocalizationTest < ActionDispatch::IntegrationTest
     assert_match "Nur Lesezugriff, keine Schlüssel erforderlich", response.body
     assert_match "Mit diesen Daten lassen sich keine Vermögenswerte übertragen.", response.body
     assert_match "Gib niemals eine Seed-Phrase oder einen Private Key ein.", response.body
-    assert_match "Bitcoin wird jeweils über eine einzelne Adresse verfolgt.", response.body
+    assert_match "Über eine Bitcoin-Adresse wird nur diese eine Adresse verfolgt.", response.body
   end
 
   test "the German token review renders selection guidance" do
