@@ -3,7 +3,7 @@
 require "test_helper"
 
 class OnchainWalletItem::ImporterTest < ActiveSupport::TestCase
-  include OnchainTestHelper
+  include OnchainTestHelper, BitcoinExplorerTestHelper
 
   setup do
     register_fake_chain!
@@ -33,6 +33,57 @@ class OnchainWalletItem::ImporterTest < ActiveSupport::TestCase
     assert_equal "2.5", account.raw_payload["quantity"]
     assert_equal [ "tx1" ], account.raw_movements_payload["movements"].map { |m| m["external_id"] }
     assert account.content_hash.present?
+  end
+
+  test "a wallet linked by its account key is read as a whole" do
+    account = bitcoin_account
+    row = create_bitcoin_account_row(item: @item, account: account)
+    stub_bitcoin_explorer(transactions: [
+      bitcoin_transaction("change", outputs: [ [ account.address(1, 0), 25_000_000 ] ]),
+      bitcoin_transaction("received", outputs: [ [ account.address(0, 0), 50_000_000 ] ])
+    ])
+
+    result = OnchainWalletItem::Importer.new(@item).import
+
+    assert_equal [ row.id ], result[:changed_account_ids]
+    row.reload
+    assert_equal BigDecimal("0.75"), row.quantity
+    assert_equal %w[change received], row.raw_movements_payload["movements"].map { |movement| movement["external_id"] }.sort
+    assert_not row.history_truncated?
+    assert_not row.addresses_truncated?
+    assert_empty OnchainWalletItem::Importer.new(@item).import[:changed_account_ids]
+  end
+
+  test "a key wallet with more addresses than one read covers says so" do
+    account = bitcoin_account
+    row = create_bitcoin_account_row(item: @item, account: account)
+    stub_bitcoin_explorer(transactions: [ bitcoin_transaction("received", outputs: [ [ account.address(0, 5), 50_000_000 ] ]) ])
+
+    assert_difference "DebugLogEntry.count", 1 do
+      with_env("ONCHAIN_MAX_ADDRESSES_PER_WALLET" => "40") { OnchainWalletItem::Importer.new(@item).import }
+    end
+
+    assert row.reload.history_truncated?
+    assert row.addresses_truncated?
+    metadata = DebugLogEntry.order(:created_at).last.metadata
+    assert metadata["addresses_truncated"]
+    assert_equal account.reference, metadata["address"]
+    assert_not_includes metadata.to_json, BIP84_XPUB
+
+    OnchainWalletItem::Importer.new(@item).import
+    assert_not row.reload.addresses_truncated?
+  end
+
+  test "a stored key that cannot be used fails its own wallet and no other" do
+    create_bitcoin_account_row(item: @item).update_column(:extended_public_key, "xpub-damaged")
+    other = create_onchain_wallet_account(item: @item)
+    stub_fake_snapshot(OnchainTestHelper::FAKE_ADDRESS, Onchain::Snapshot.new(assets: [ fake_native_asset(quantity: 9) ], movements: []))
+
+    result = OnchainWalletItem::Importer.new(@item).import
+
+    assert_equal 1, result[:wallets_failed]
+    assert_equal 9, other.reload.quantity
+    assert_not_includes DebugLogEntry.order(:created_at).last.metadata.to_json, "xpub-damaged"
   end
 
   test "does not create rows for assets the user never chose to track" do

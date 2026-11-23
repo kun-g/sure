@@ -1,8 +1,9 @@
 # On-chain (self-custody) wallets
 
 Sure can track wallets you hold the keys to — Bitcoin, six EVM networks,
-Solana, TRON, Polkadot and the Cosmos Hub — from their **public addresses only**. Nothing is signed, no key or seed
-phrase is ever entered, and no API key is required for any chain.
+Solana, TRON, Polkadot and the Cosmos Hub — from their **public addresses**, or for a
+whole Bitcoin wallet its account's **extended public key**. Nothing is signed, no
+private key or seed phrase is ever entered, and no API key is required for any chain.
 
 This document covers where the data comes from, what needs configuring, the
 limits you will hit, and how to diagnose a wallet that looks wrong.
@@ -109,7 +110,8 @@ address, the cost is roughly:
 
 | Network | Requests per sync |
 |---|---|
-| Bitcoin | 1 + up to 10 history pages |
+| Bitcoin address | 1 + up to 10 history pages |
+| Bitcoin account key | 1 per derived address looked at (at least 40, up to 400) + up to 400 history pages |
 | EVM | 1 summary + up to 10 pages of transfers + up to 10 pages of token transfers |
 | Solana | ~2 + up to 25 transaction reads |
 | Cosmos Hub | 3, plus a page per extra 200 validators staked with |
@@ -150,6 +152,31 @@ When a cap is hit, the affected address says so in **Manage wallets**, and the
 event is recorded in **Settings → Debug logs** under the `onchain_wallet`
 provider — once per address per sync, not once per night forever.
 
+### How far a Bitcoin account key is scanned
+
+Nothing lists the addresses a wallet has used, so each sync derives them in order
+on the receiving and the change branch and asks about each one, until
+`ONCHAIN_GAP_LIMIT` of them in a row (default 20, maximum 200) have never been
+used on both. An unused wallet therefore costs 40 requests and a used one that
+many more as it has used addresses, at four a second against the public endpoint.
+
+`ONCHAIN_MAX_ADDRESSES_PER_WALLET` (default 400, maximum 5,000, and never less than
+two gaps) bounds the scan. The history pages of the whole wallet are bounded by the
+same number, on top of the per-address cap above, and an address whose transactions
+were all seen at others costs none.
+
+- **Out of addresses**: the balance covers the addresses that were looked at, and
+  no transfers are imported, because a payment to an address past the end could not
+  be told from change. Manage wallets says so. Raise the limit.
+- **Out of history pages**: the balance is complete and the oldest transfers are
+  missing, as for a single address.
+- **Rate limited or unreachable while scanning**: the sync fails and keeps the last
+  known balance; while reading history, what was read is kept and the history is
+  marked incomplete.
+
+Raise the gap limit only if your wallet skips more than 20 addresses, which is
+usual for merchant software that hands one out per invoice.
+
 ### How many tokens one address surfaces
 
 Real addresses are airdrop dumping grounds: a well-known Ethereum address holds
@@ -175,8 +202,9 @@ whole flow; you can still pick it by hand.
 
 **Settings → Providers → On-chain wallets → Add wallet.**
 
-1. Paste the public address. Leave the network on "Detect automatically" unless
-   you know which one you want.
+1. Paste the public address, or a Bitcoin account's extended public key (see
+   below). Leave the network on "Detect automatically" unless you know which one
+   you want.
 2. If the address format belongs to several networks — every `0x` address is
    valid on all six EVM networks, and Bitcoin's and TRON's Base58 shapes overlap Solana's —
    Sure probes each and asks you to choose, marking the ones where it found
@@ -191,6 +219,47 @@ whole flow; you can still pick it by hand.
    value of zero.
 
 Nothing is imported that you did not tick.
+
+### A whole Bitcoin wallet
+
+Most Bitcoin wallets hand out a new receiving address each time and send change to
+others, so one address shows a fraction of the wallet. Paste the **account's
+extended public key** to follow all of them. Wallets export it as "account public
+key", "xpub" or "zpub"; it has to be the mainnet key at account depth (such as
+`m/84'/0'/0'`), without the surrounding descriptor.
+
+The same key derives different addresses for each address type, so the type has to
+be known:
+
+| Type | Addresses | Path | Accepted keys |
+|---|---|---|---|
+| Legacy (P2PKH) | `1…` | BIP44 `m/44'/0'/n'` | xpub |
+| Nested SegWit (P2SH-P2WPKH) | `3…` | BIP49 `m/49'/0'/n'` | ypub, xpub |
+| Native SegWit (P2WPKH) | `bc1q…` | BIP84 `m/84'/0'/n'` | zpub, xpub |
+| Taproot (P2TR) | `bc1p…` | BIP86 `m/86'/0'/n'` | xpub |
+
+A `ypub` or `zpub` states its type. An `xpub` does not — wallets export it for all
+four — so Sure asks. It shows the first receiving address of each type, to compare
+with your wallet, and takes an address of yours instead: if it is among the first
+100 receiving or change addresses of one type, that is the type. If you give both,
+they have to agree. Nothing is preselected and nothing is tried out, because the
+wrong type derives addresses that are valid and empty: it would sync without an
+error and show a wallet with nothing in it. For a key that states its type, compare
+the first receiving address on the review screen.
+
+The balance is read on the first sync rather than while you wait.
+
+A key and one of its addresses cannot be tracked side by side, since the coins would
+count twice. Stop tracking the address and delete its account first.
+
+**What the key reveals.** An extended public key cannot spend. Whoever has it can
+see every past and future address of the account, so Sure stores it encrypted like
+an API key — set the Active Record encryption keys on a self-hosted instance — and
+never shows it again; accounts and logs carry a fingerprint instead. The derived
+addresses are looked up at the explorer, which can tell that they belong together.
+Point `MEMPOOL_SPACE_URL` at your own instance to avoid that. Private keys (`xprv`,
+`yprv`, `zprv`, WIF) are refused wherever an address can be pasted, and never stored
+or logged.
 
 ## Managing a wallet
 
@@ -241,14 +310,16 @@ of its value in a staking or lending protocol will report a fraction of it. This
 is a scope limit, not a bug — nothing in the UI claims those positions were
 checked.
 
-**Bitcoin is one address at a time.** Extended keys (`xpub`, `ypub`, `zpub`) are
-not supported and are rejected as addresses. This matters: most Bitcoin wallets
-are HD wallets, where one extended key derives thousands of addresses and change
-is sent to derived ones. Tracking a single address of such a wallet reports only
-that address's balance, which is usually a fraction of the wallet. Supporting
-extended keys would require BIP32 derivation — a dependency this codebase
-deliberately avoids — or a descriptor-indexing backend. If you use a single-address
-setup, or want to follow one specific address, this works exactly as expected.
+**A Bitcoin address is tracked by itself.** Most Bitcoin wallets spread their coins
+over many derived addresses, and tracking one of them reports only its balance. Use
+the account's extended public key for the whole wallet. Multisig wallets and output
+descriptors are not supported, and neither are accounts beyond the one the key
+belongs to: add each with its own key.
+
+**Transfers within a Bitcoin account are not shown.** A transaction between the
+wallet's own addresses is neither income nor an expense, so it makes no entry; its
+fee only shows as a slightly lower balance. Any other transaction is one entry for
+the net effect on the whole wallet, change and fee included.
 
 **Solana token names depend on a token list.** RPC returns mints, not names, so
 names come from Jupiter's token search — and only for mints it reports as
@@ -315,7 +386,13 @@ covers major assets, so long-tail tokens are tracked by quantity and valued at
 zero. See "Limitations" — there is no setting that changes this.
 
 **A Bitcoin balance is much lower than my wallet app shows.** You are tracking one
-address of an HD wallet. See "Limitations".
+address of a wallet that has many. Add its extended public key instead; see "A whole
+Bitcoin wallet".
+
+**A Bitcoin wallet added by its key shows nothing.** The address type is probably not
+the one your wallet uses, or the key is of another account. Compare the first
+receiving address under **Review tokens** with your wallet. A key
+added with the wrong type has to be disconnected and added again.
 
 **Sync says the explorer could not be reached.** The public endpoint is down,
 throttling you, or too slow to answer. Retry later, or point the relevant

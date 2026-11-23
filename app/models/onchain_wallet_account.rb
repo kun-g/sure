@@ -1,13 +1,16 @@
 # frozen_string_literal: true
 
-# One tracked asset, at one address, on one chain. Uniqueness is enforced by
+# One tracked asset, in one wallet, on one chain. A wallet is an address, or an
+# account of many addresses followed by its extended public key; in that case
+# wallet_address holds the account's reference, never the key. Uniqueness is enforced by
 # three partial indexes — one per asset kind — because a native coin is
 # identified by its address while a token is identified by its contract.
 class OnchainWalletAccount < ApplicationRecord
   include Encryptable
 
-  # Encrypt raw payloads if ActiveRecord encryption is configured
+  # Encrypt the account key and raw payloads if ActiveRecord encryption is configured
   if encryption_ready?
+    encrypts :extended_public_key
     encrypts :raw_payload
     encrypts :raw_movements_payload
   end
@@ -20,6 +23,8 @@ class OnchainWalletAccount < ApplicationRecord
   validates :chain, :wallet_address, :asset_kind, :symbol, :currency, presence: true
   validates :quantity, presence: true
   validates :decimals, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
+  validates :script_type, presence: true, if: :key_account?
+  validates :script_type, absence: true, unless: :key_account?
   validate :chain_is_registered
   validate :asset_kind_is_valid_for_chain
   validate :contract_matches_asset_kind
@@ -32,8 +37,14 @@ class OnchainWalletAccount < ApplicationRecord
   }
   scope :for_wallet, ->(chain, address) { where(chain: chain, wallet_address: address) }
   scope :native, -> { where(asset_kind: Onchain::Chains::NATIVE_KIND) }
+  scope :with_account_key, -> { where.not(extended_public_key: nil) }
+  scope :without_account_key, -> { where(extended_public_key: nil) }
   scope :linked, -> { joins(:account_provider) }
   scope :unlinked, -> { left_joins(:account_provider).where(account_providers: { id: nil }) }
+
+  def self.script_type_label(script_type)
+    I18n.t("onchain.script_types.#{script_type}", default: script_type.to_s)
+  end
 
   def native?
     asset_kind == Onchain::Chains::NATIVE_KIND
@@ -48,6 +59,29 @@ class OnchainWalletAccount < ApplicationRecord
   # True when the address holds more tokens than one read surfaces.
   def assets_truncated?
     extra.to_h.dig("onchain_wallet", "assets_truncated") == true
+  end
+
+  # True when the wallet has more addresses than the last sync looked at, so that
+  # the quantity is a lower bound too.
+  def addresses_truncated?
+    extra.to_h.dig("onchain_wallet", "addresses_truncated") == true
+  end
+
+  # Whether this row's wallet is followed by its account key.
+  def key_account?
+    extended_public_key.present?
+  end
+
+  # The account this row's wallet is followed by, or nil for a single address.
+  # @raise [Onchain::Chains::Error] when the stored key cannot be used
+  def key_account
+    return nil unless key_account?
+
+    Onchain::Chains.adapter_for(chain).account_for(extended_public_key, script_type)
+  end
+
+  def script_type_label
+    self.class.script_type_label(script_type) if script_type.present?
   end
 
   def chain_definition

@@ -23,6 +23,17 @@ class FilterParameterLoggingTest < ActiveSupport::TestCase
     assert_equal "[FILTERED]", filtered.dig(:simplefin_item, :access_url)
   end
 
+  # The wallet form has one field for whatever the user pastes, so a private key
+  # or seed phrase given to it by mistake arrives as an address like any other.
+  test "filters what is pasted into the wallet form from logs" do
+    filtered = @filter.filter(address: "xprv9xpXFhFpqdQK3", known_address: "KyZpNDKnfs94vbrwhJn", extended_public_key: "xpub6Bosf", script_type: "p2wpkh")
+
+    assert_equal "[FILTERED]", filtered[:address]
+    assert_equal "[FILTERED]", filtered[:known_address]
+    assert_equal "[FILTERED]", filtered[:extended_public_key]
+    assert_equal "p2wpkh", filtered[:script_type]
+  end
+
   test "keeps descriptive codes readable" do
     filtered = @filter.filter(currency_code: "EUR", country_code: "DE", postal_code: "10115")
 

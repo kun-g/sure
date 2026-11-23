@@ -358,7 +358,7 @@ tr:
         etherscan_hint: Ethereum verileri anahtar olmadan da okunabilir. Etherscan anahtarı eklemek yalnızca Ethereum için hız sınırını yükseltir.
         keep_etherscan_api_key: Mevcut anahtarı korumak için boş bırakın
         manage_wallets: Cüzdanları yönet
-        keyless_body: Sure yalnızca herkese açık zincir verilerini okur. Hiçbir anahtar, kurtarma ifadesi veya imza kullanılmaz ve hiçbir şey harcanamaz.
+        keyless_body: Sure yalnızca herkese açık zincir verilerini okur. Hiçbir özel anahtar, kurtarma ifadesi veya imza kullanılmaz ve hiçbir şey harcanamaz.
         keyless_title: Salt okunur, anahtar gerekmez
         save: Kaydet
         sync_start_date_hint: Bu tarihten önceki transferler yok sayılır. Blok gezgininin bildirdiği her şeyi içe aktarmak için boş bırakın.

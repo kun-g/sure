@@ -3,7 +3,7 @@
 require "test_helper"
 
 class OnchainWalletAccountTest < ActiveSupport::TestCase
-  include OnchainTestHelper
+  include OnchainTestHelper, BitcoinExplorerTestHelper
 
   setup do
     register_fake_chain!
@@ -13,6 +13,38 @@ class OnchainWalletAccountTest < ActiveSupport::TestCase
 
   teardown do
     unregister_fake_chain!
+  end
+
+  test "an extended public key is stored encrypted and never shown by inspect" do
+    row = create_bitcoin_account_row(item: @item)
+
+    stored = OnchainWalletAccount.connection.select_value(
+      "SELECT extended_public_key FROM onchain_wallet_accounts WHERE id = #{OnchainWalletAccount.connection.quote(row.id)}"
+    )
+
+    assert_not_includes stored, BIP84_XPUB
+    assert_not_includes row.reload.inspect, BIP84_XPUB
+    assert_equal BIP84_XPUB, row.extended_public_key
+  end
+
+  test "a row with a key stands for the account it was linked as" do
+    row = create_bitcoin_account_row(item: @item, account: bitcoin_account("p2tr"))
+
+    assert row.key_account?
+    assert_equal bitcoin_account("p2tr").reference, row.reload.key_account.reference
+    assert_not_includes row.display_name, BIP84_XPUB
+    assert_not create_onchain_wallet_account(item: @item).key_account?
+    assert_nil create_onchain_wallet_account(item: @item, address: OnchainTestHelper::FAKE_ADDRESS_ALT).key_account
+  end
+
+  test "a key without a script type, or a script type without a key, is refused" do
+    row = create_bitcoin_account_row(item: @item)
+
+    assert_not row.tap { |r| r.script_type = nil }.valid?
+    assert_not row.reload.tap { |r| r.extended_public_key = nil }.valid?
+    assert_raises(ActiveRecord::StatementInvalid) do
+      OnchainWalletAccount.transaction(requires_new: true) { row.reload.update_column(:script_type, nil) }
+    end
   end
 
   test "the database rejects a second native row for the same address" do

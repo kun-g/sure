@@ -47,17 +47,21 @@ class OnchainWalletItem::Importer
   # Refreshes one address. Returns the ids of the rows whose on-chain state
   # changed, which is what the syncer reprocesses.
   def import_wallet(chain:, address:)
-    snapshot = fetch_snapshot(chain: chain, address: address)
+    accounts = onchain_wallet_item.accounts_for_wallet(chain, address).to_a
+    key_account = accounts.find(&:key_account?)&.key_account
+    snapshot = fetch_snapshot(chain: chain, address: address, key_account: key_account)
 
-    onchain_wallet_item.accounts_for_wallet(chain, address).filter_map do |account|
+    accounts.filter_map do |account|
       apply_snapshot(account, snapshot, chain: chain, address: address)
     end
   end
 
-  # Reads an address without touching the database. Used by the linking and
+  # Reads a wallet without touching the database. Used by the linking and
   # token review flows to show the user what is there before anything is saved.
-  def fetch_snapshot(chain:, address:)
-    onchain_wallet_item.chain_adapter(chain).fetch_snapshot(address)
+  def fetch_snapshot(chain:, address:, key_account: nil)
+    adapter = onchain_wallet_item.chain_adapter(chain)
+
+    key_account ? adapter.fetch_account_snapshot(key_account) : adapter.fetch_snapshot(address)
   end
 
   # The same without transfer history, for screens that only list assets and
@@ -142,12 +146,14 @@ class OnchainWalletItem::Importer
     # Recorded on the row so the UI can say the read was incomplete instead of
     # implying what it returned is all there is.
     def truncation_extra(account, snapshot)
-      account.extra.to_h.deep_merge(
-        "onchain_wallet" => {
-          "history_truncated" => snapshot.history_truncated?,
-          "assets_truncated" => snapshot.assets_truncated?
-        }
-      )
+      flags = {
+        "history_truncated" => snapshot.history_truncated?,
+        "assets_truncated" => snapshot.assets_truncated?
+      }
+      # Only where there is a set of addresses to read incompletely.
+      flags["addresses_truncated"] = snapshot.addresses_truncated? if account.key_account?
+
+      account.extra.to_h.deep_merge("onchain_wallet" => flags)
     end
 
     def report_unreachable(chain:, address:, error:)
@@ -171,6 +177,7 @@ class OnchainWalletItem::Importer
       reasons = []
       reasons << "not every transfer was read" if snapshot.history_truncated?
       reasons << "not every token held is surfaced" if snapshot.assets_truncated?
+      reasons << "not every address was looked at" if snapshot.addresses_truncated?
 
       DebugLogEntry.capture(
         category: "provider_sync_error",
@@ -185,6 +192,7 @@ class OnchainWalletItem::Importer
           address: address,
           history_truncated: snapshot.history_truncated?,
           assets_truncated: snapshot.assets_truncated?,
+          addresses_truncated: snapshot.addresses_truncated?,
           max_pages: Onchain::HistoryBudget.pages,
           max_tokens: Onchain::AssetBudget.tokens
         }

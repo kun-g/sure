@@ -7,6 +7,18 @@ es:
       no_activity_found: Sin actividad
       subtitle: "%{address}"
       title: "¿Qué red?"
+    choose_script_type:
+      continue: "Continuar"
+      errors:
+        known_address_mismatch: "Esa dirección no está entre las primeras que esta clave genera para ese tipo. Comprueba que ambas sean de la misma cuenta."
+        script_type_unsupported: "Esta clave no se puede usar con ese tipo de dirección."
+      explanation: "La misma clave pública extendida genera direcciones distintas para cada tipo. Elige el tipo cuya primera dirección coincida con la primera dirección de recepción de tu cartera; con el equivocado, la cartera parecería vacía."
+      first_address: "Primera dirección de recepción: %{address}"
+      known_address_hint: "Cualquiera de sus 100 primeras direcciones de recepción o de cambio. Solo se compara con las direcciones que genera la clave."
+      known_address_label: "O una dirección de esta cartera"
+      script_type_legend: "Tipo de dirección"
+      subtitle: "Esta clave no indica qué direcciones usa su cartera."
+      title: "¿Qué tipo de direcciones?"
     destroy:
       success: La conexión de autocustodia se eliminará en breve.
     disconnect_asset:
@@ -19,9 +31,13 @@ es:
       not_self_hosted: En esta instalación, los proveedores de datos de mercado los configura el operador de la instancia.
       success: Precios de criptomonedas activados. El valor de las carteras aparecerá tras la próxima sincronización.
     errors:
+      account_contains_tracked_address: "Esta cuenta incluye %{addresses}, que ya se sigue por separado, así que sus monedas se contarían dos veces. Deja de seguirla en Gestionar carteras y elimina su cuenta; después añade esta."
+      address_in_tracked_account: "Esa dirección pertenece a una cuenta que ya se sigue mediante su clave pública extendida, así que sus monedas ya se cuentan."
       address_required: Introduce una dirección de cartera.
       already_linked: Esa dirección ya se sigue en esta red. Usa Revisar tokens para cambiar qué activos se siguen.
       chain_unreachable: No se ha podido acceder al explorador público de esta red. Inténtalo de nuevo en un momento.
+      invalid_account_key: "Esa clave pública extendida no se puede usar. Tiene que ser la clave de cuenta de la red principal (xpub, ypub o zpub) que exporta tu cartera, copiada entera."
+      private_key: "Eso es una clave privada. No se ha guardado ni registrado, y Sure nunca la necesita. Usa una dirección o la clave pública extendida de la cuenta (xpub, ypub o zpub)."
       rate_limited: El explorador público está limitando las solicitudes. Inténtalo de nuevo en unos minutos.
       unexpected: Algo ha fallado al leer esta cartera. Se han guardado los detalles para soporte.
       unrecognized_address: No parece una dirección de ninguna red compatible.
@@ -35,6 +51,7 @@ es:
         one: Siguiendo 1 activo de esta cartera.
         other: Siguiendo %{count} activos de esta cartera.
     manage:
+      addresses_truncated: "Esta cartera tiene más direcciones de las que consulta una sincronización, así que su saldo puede ser mayor que el mostrado y sus transferencias no se importan."
       assets_truncated: Esta dirección tiene más tokens de los que muestra una sola lectura, así que solo se listan los %{count} más fiables. Lo que ya se sigue continúa sincronizándose.
       disconnect_asset: Dejar de seguir
       disconnect_asset_confirm: "¿Dejar de seguir %{symbol}? Su cuenta y su historial se conservan y dejan de actualizarse."
@@ -48,9 +65,10 @@ es:
       subtitle: Cada dirección que lee esta conexión y lo que sigue en cada una.
       title: Gestionar carteras de autocustodia
     new_wallet:
-      address_label: Dirección de la cartera
-      address_placeholder: bc1..., 0x... o una dirección de Solana
-      bitcoin_single_address_note: Bitcoin se sigue dirección a dirección. Las claves extendidas (xpub/ypub/zpub) no son compatibles, así que una cartera que reparte fondos entre direcciones derivadas solo mostrará el saldo de la dirección que introduzcas.
+      account_key_privacy_note: "Con una clave pública extendida no se puede gastar, pero quien la tenga puede ver todas las direcciones de la cuenta. Se guarda cifrada, y las direcciones que genera se consultan en el explorador de bloques."
+      address_label: "Dirección de la cartera o clave pública extendida"
+      address_placeholder: "bc1..., xpub..., 0x... o una dirección de Solana"
+      bitcoin_single_address_note: "Con una dirección de Bitcoin solo se sigue esa dirección. Para seguir una cartera completa, pega la clave pública extendida de la cuenta (xpub, ypub o zpub): a partir de ella se encuentran y se suman sus direcciones de recepción y de cambio."
       chain_auto_detect: Detectar automáticamente
       chain_label: Red
       continue: Continuar
@@ -97,10 +115,12 @@ es:
     token_review_form:
       assets_truncated: Esta dirección tiene más tokens de los que muestra una sola lectura, así que solo se listan los %{count} más fiables.
       cancel: Cancelar
+      check_first_address: "Comprueba que esta es la primera dirección de recepción de tu cartera"
       explanation: 'Los activos con precio conocido aparecen marcados. El resto queda sin marcar: las carteras acumulan airdrops de spam y seguir uno no aporta ningún valor.'
       native: Nativo
       no_price: Sin precio disponible; solo se sigue la cantidad
       nothing_found: No vemos nada en esta dirección en esta red.
+      quantity_after_sync: "Se lee en la primera sincronización"
     update:
       success: Conexión de autocustodia actualizada.
     update_tokens:

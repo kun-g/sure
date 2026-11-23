@@ -8,6 +8,7 @@ require "application_system_test_case"
 # in the controller test.
 class OnchainWalletsTest < ApplicationSystemTestCase
   include OnchainTestHelper
+  include BitcoinExplorerTestHelper
 
   setup do
     register_fake_chain!
@@ -56,6 +57,33 @@ class OnchainWalletsTest < ApplicationSystemTestCase
         assert_button I18n.t("onchain_wallet_items.price_provider_warning.enable")
       end
     end
+  end
+
+  # One more step in the same modal frame, with a form of its own.
+  test "linking an xpub asks for its script type before it can be tracked" do
+    visit settings_providers_path
+    open_onchain_panel
+    click_on I18n.t("settings.providers.onchain_wallet_panel.add_wallet")
+    fill_in I18n.t("onchain_wallet_items.new_wallet.address_label"), with: BIP84_XPUB
+    click_on I18n.t("onchain_wallet_items.new_wallet.continue")
+
+    assert_text I18n.t("onchain_wallet_items.choose_script_type.title")
+    assert_no_selector "input[name='script_type']:checked", visible: :all
+    assert_text bitcoin_account.first_address
+    choose I18n.t("onchain.script_types.p2wpkh"), allow_label_click: true
+    click_on I18n.t("onchain_wallet_items.choose_script_type.continue")
+
+    assert_text I18n.t("onchain_wallet_items.token_review.title")
+    assert_text bitcoin_account.first_address
+
+    assert_difference -> { Account.count }, 1 do
+      click_on I18n.t("onchain_wallet_items.token_review.import_selected")
+      assert_text I18n.t("onchain_wallet_items.link_wallet.success", count: 1)
+    end
+
+    row = OnchainWalletAccount.sole
+    assert_equal bitcoin_account.reference, row.wallet_address
+    assert_equal "p2wpkh", row.script_type
   end
 
   test "managing a wallet reviews its tokens and disconnects one asset" do

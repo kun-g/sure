@@ -3,7 +3,7 @@
 require "test_helper"
 
 class OnchainWalletItemsControllerTest < ActionDispatch::IntegrationTest
-  include OnchainTestHelper
+  include OnchainTestHelper, BitcoinExplorerTestHelper
 
   setup do
     sign_in users(:family_admin)
@@ -20,7 +20,7 @@ class OnchainWalletItemsControllerTest < ActionDispatch::IntegrationTest
     get new_wallet_onchain_wallet_items_url
 
     assert_response :success
-    assert_match I18n.t("onchain_wallet_items.new_wallet.bitcoin_single_address_note"), response.body
+    assert_includes response.parsed_body.text, I18n.t("onchain_wallet_items.new_wallet.bitcoin_single_address_note")
     # "Can Sure spend my coins?" is asked while pasting an address, not while
     # reading a settings page for the third time.
     assert_match I18n.t("settings.providers.onchain_wallet_panel.keyless_title"), response.body
@@ -637,7 +637,246 @@ class OnchainWalletItemsControllerTest < ActionDispatch::IntegrationTest
     assert OnchainWalletAccount.exists?(other_account.id)
   end
 
+  # --- Wallets followed by an account key. Nothing below stubs an explorer unless
+  # it says so: WebMock fails the test on any request the flow would make. ---
+
+  test "a ypub or zpub states its script type and goes straight to the review" do
+    preview_bitcoin(BIP84_ZPUB)
+
+    assert_response :success
+    assert_select "form[action=?]", link_wallet_onchain_wallet_items_path do
+      assert_select "input[name=address][value=?]", BIP84_ZPUB
+      assert_select "input[name=script_type][value=p2wpkh]"
+      assert_select "input[name='assets[]'][value=native][checked]"
+    end
+    # The owner recognizes the account by the address the wallet shows first.
+    assert_match bitcoin_account.first_address, response.body
+    assert_match I18n.t("onchain_wallet_items.token_review_form.quantity_after_sync"), response.body
+  end
+
+  test "an xpub asks for its script type, showing each one's first address" do
+    preview_bitcoin(BIP84_XPUB)
+
+    assert_response :success
+    assert_select "form[action=?]", preview_wallet_onchain_wallet_items_path do
+      assert_select "input[name=address][value=?]", BIP84_XPUB
+      assert_select "input[name=script_type]", 4
+      # Nothing is chosen on the owner's behalf.
+      assert_select "input[name=script_type][checked]", false
+      assert_select "input[name=known_address]"
+    end
+    %w[p2pkh p2sh_p2wpkh p2wpkh p2tr].each do |script_type|
+      assert_match bitcoin_account(script_type).first_address, response.body
+    end
+  end
+
+  test "choosing the script type settles it" do
+    preview_bitcoin(BIP84_XPUB, script_type: "p2tr")
+
+    assert_response :success
+    assert_select "input[name=script_type][value=p2tr]"
+    assert_match bitcoin_account("p2tr").first_address, response.body
+  end
+
+  test "an address of the wallet settles the script type, receive or change" do
+    [ bitcoin_account("p2sh_p2wpkh").address(0, 7), bitcoin_account("p2sh_p2wpkh").address(1, 2) ].each do |known_address|
+      preview_bitcoin(BIP84_XPUB, known_address: known_address)
+
+      assert_response :success
+      assert_select "form[action=?] input[name=script_type][value=p2sh_p2wpkh]", link_wallet_onchain_wallet_items_path
+    end
+  end
+
+  test "an address the key does not derive settles nothing" do
+    preview_bitcoin(BIP84_XPUB, known_address: "bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq")
+
+    assert_response :unprocessable_entity
+    assert_match I18n.t("onchain_wallet_items.choose_script_type.errors.known_address_mismatch"), response.body
+    assert_select "form[action=?]", link_wallet_onchain_wallet_items_path, false
+    assert_select "input[name=script_type][checked]", false
+  end
+
+  test "a known address that contradicts the chosen script type is not overruled by it" do
+    preview_bitcoin(BIP84_XPUB, script_type: "p2tr", known_address: bitcoin_account("p2wpkh").first_address)
+
+    assert_response :unprocessable_entity
+    assert_match I18n.t("onchain_wallet_items.choose_script_type.errors.known_address_mismatch"), response.body
+  end
+
+  test "a script type the key cannot have is not taken" do
+    preview_bitcoin(BIP84_ZPUB, script_type: "p2tr")
+    assert_response :unprocessable_entity
+
+    preview_bitcoin(BIP84_XPUB, script_type: "nonsense")
+    assert_response :unprocessable_entity
+    assert_select "input[name=script_type]", 4
+  end
+
+  test "an xpub is never linked without a script type" do
+    assert_no_difference [ "OnchainWalletAccount.count", "Account.count", "OnchainWalletItem.count" ] do
+      post link_wallet_onchain_wallet_items_url, params: {
+        chain: Onchain::Chains::BITCOIN, address: BIP84_XPUB, assets: [ "native" ]
+      }
+    end
+
+    assert_response :unprocessable_entity
+    assert_select "input[name=script_type]", 4
+  end
+
+  test "linking an account key tracks one Bitcoin account and reads it in the background" do
+    SyncJob.expects(:perform_later).at_least_once
+
+    assert_difference [ "OnchainWalletAccount.count", "Account.count" ], 1 do
+      link_bitcoin(BIP84_XPUB, script_type: "p2wpkh")
+    end
+
+    assert_redirected_to accounts_path
+    row = OnchainWalletAccount.order(:created_at).last
+    assert_equal BIP84_XPUB, row.extended_public_key
+    assert_equal "p2wpkh", row.script_type
+    assert_equal bitcoin_account.reference, row.wallet_address
+  end
+
+  test "the chain may be named or left to detection, but another chain refuses the key" do
+    post preview_wallet_onchain_wallet_items_url, params: { address: BIP84_ZPUB, chain: Onchain::Chains::BITCOIN }
+    assert_response :success
+
+    post preview_wallet_onchain_wallet_items_url, params: { address: BIP84_ZPUB, chain: Onchain::Chains::ETHEREUM }
+    assert_response :unprocessable_entity
+    assert_match I18n.t("onchain_wallet_items.errors.unrecognized_address"), response.body
+  end
+
+  test "a private key is refused everywhere, unstored, unlogged and unechoed" do
+    log = StringIO.new
+    logger = ActiveSupport::TaggedLogging.new(ActiveSupport::Logger.new(log))
+    Rails.stubs(:logger).returns(logger)
+    ActionController::Base.stubs(:logger).returns(logger)
+
+    assert_no_difference [ "OnchainWalletAccount.count", "Account.count", "OnchainWalletItem.count", "DebugLogEntry.count" ] do
+      [
+        [ preview_wallet_onchain_wallet_items_url, { address: BIP84_ZPRV } ],
+        [ preview_wallet_onchain_wallet_items_url, { address: " #{BIP84_ZPRV} ", chain: Onchain::Chains::BITCOIN } ],
+        [ preview_wallet_onchain_wallet_items_url, { address: BIP84_ZPRV, chain: Onchain::Chains::ETHEREUM } ],
+        [ preview_wallet_onchain_wallet_items_url, { address: BIP84_XPUB, known_address: BIP84_ZPRV } ],
+        [ link_wallet_onchain_wallet_items_url, { address: BIP84_ZPRV, chain: Onchain::Chains::BITCOIN, script_type: "p2wpkh", assets: [ "native" ] } ]
+      ].each do |url, params|
+        post url, params: params
+
+        assert_response :unprocessable_entity
+        assert_includes response.parsed_body.text, I18n.t("onchain_wallet_items.errors.private_key")
+        assert_not_includes response.body, BIP84_ZPRV
+      end
+    end
+
+    assert_not_includes log.string, BIP84_ZPRV
+  end
+
+  test "a key that is not a mainnet account key is named as the problem" do
+    [
+      "tpubD6NzVbkrYhZ4XgiXtGrdW5XDAPFCL9h7we1vwNCpn8tGbBcgfVYjXyhWo4E1xkh56hjod1RhGjxbaTLV3X4FyWuejifB9jusQ46QzG87VKp",
+      "xpub661MyMwAqRbcFtXgS5sYJABqqG9YLmC4Q1Rdap9gSE8NqtwybGhePY2gZ29ESFjqJoCu1Rupje8YtGqsefD265TMg7usUDFdp6W1EGMcet8",
+      BIP84_ZPUB.chop + "a"
+    ].each do |key|
+      preview_bitcoin(key)
+
+      assert_response :unprocessable_entity
+      assert_match I18n.t("onchain_wallet_items.errors.invalid_account_key"), response.body
+    end
+  end
+
+  test "an account already tracked is refused under any spelling of its key" do
+    link_onchain_wallet_account!(create_bitcoin_account_row(item: create_onchain_wallet_item(family: @family)))
+
+    preview_bitcoin(BIP84_ZPUB)
+    assert_response :unprocessable_entity
+    assert_match I18n.t("onchain_wallet_items.errors.already_linked"), response.body
+
+    assert_no_difference("OnchainWalletAccount.count") { link_bitcoin(BIP84_ZPUB, script_type: "p2wpkh") }
+    assert_response :unprocessable_entity
+
+    preview_bitcoin(BIP84_XPUB, script_type: "p2tr")
+    assert_response :success
+  end
+
+  test "an account containing an address tracked on its own is refused, naming the address" do
+    address = bitcoin_account.address(0, 4)
+    link_onchain_wallet_account!(
+      create_onchain_wallet_account(
+        item: create_onchain_wallet_item(family: @family),
+        asset: Onchain::Chains.find!(Onchain::Chains::BITCOIN).native_asset(quantity: 1),
+        chain: Onchain::Chains::BITCOIN, address: address
+      )
+    )
+
+    preview_bitcoin(BIP84_ZPUB)
+    assert_response :unprocessable_entity
+    assert_match address, response.body
+
+    assert_no_difference("OnchainWalletAccount.count") { link_bitcoin(BIP84_ZPUB, script_type: "p2wpkh") }
+    assert_response :unprocessable_entity
+  end
+
+  test "an address inside a tracked account is refused" do
+    link_onchain_wallet_account!(create_bitcoin_account_row(item: create_onchain_wallet_item(family: @family)))
+
+    assert_no_difference "OnchainWalletAccount.count" do
+      post preview_wallet_onchain_wallet_items_url, params: { address: bitcoin_account.address(1, 4), chain: Onchain::Chains::BITCOIN }
+      assert_response :unprocessable_entity
+      assert_match I18n.t("onchain_wallet_items.errors.address_in_tracked_account"), response.body
+
+      post link_wallet_onchain_wallet_items_url, params: { address: bitcoin_account.address(1, 4), chain: Onchain::Chains::BITCOIN, assets: [ "native" ] }
+      assert_response :unprocessable_entity
+    end
+  end
+
+  test "a tracked account is managed by its reference, never by its key" do
+    item = create_onchain_wallet_item(family: @family)
+    row = create_bitcoin_account_row(item: item, quantity: BigDecimal("0.5"), extra: { "onchain_wallet" => { "history_truncated" => true, "addresses_truncated" => true } })
+    link_onchain_wallet_account!(row)
+
+    get manage_onchain_wallet_item_url(item)
+    assert_response :success
+    assert_match row.wallet_address, response.body
+    assert_match ERB::Util.html_escape(I18n.t("onchain.script_types.p2wpkh")), response.body
+    # "Balances are complete" would not be true of it.
+    assert_match I18n.t("onchain_wallet_items.manage.addresses_truncated"), response.body
+    assert_no_match I18n.t("onchain_wallet_items.manage.history_truncated"), response.body
+    assert_not_includes response.body, BIP84_XPUB
+
+    get review_tokens_onchain_wallet_item_url(item, chain: Onchain::Chains::BITCOIN, address: row.wallet_address)
+    assert_response :success
+    assert_match "0.5", response.body
+    # What tells a wrong script type from an empty wallet after the fact.
+    assert_match row.key_account.first_address, response.body
+    assert_not_includes response.body, BIP84_XPUB
+  end
+
+  test "reviewing a tracked account leaves it or stops it" do
+    item = create_onchain_wallet_item(family: @family)
+    row = create_bitcoin_account_row(item: item)
+    link_onchain_wallet_account!(row)
+    wallet = { chain: Onchain::Chains::BITCOIN, address: row.wallet_address }
+
+    post update_tokens_onchain_wallet_item_url(item), params: wallet.merge(assets: [ "native" ])
+    assert_response :unprocessable_entity
+    assert OnchainWalletAccount.exists?(row.id)
+
+    post update_tokens_onchain_wallet_item_url(item), params: wallet
+    assert_redirected_to manage_onchain_wallet_item_path(item)
+    assert_not OnchainWalletAccount.exists?(row.id)
+  end
+
   private
+    def preview_bitcoin(key, **params)
+      post preview_wallet_onchain_wallet_items_url, params: { address: key, **params }
+    end
+
+    def link_bitcoin(key, script_type:)
+      post link_wallet_onchain_wallet_items_url, params: {
+        chain: Onchain::Chains::BITCOIN, address: key, script_type: script_type, assets: [ "native" ]
+      }
+    end
+
     def stub_wallet_with_token(address: OnchainTestHelper::FAKE_ADDRESS)
       stub_fake_snapshot(
         address,

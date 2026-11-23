@@ -1,10 +1,12 @@
 <%= render DS::Dialog.new do |dialog| %>
-  <% dialog.with_header(title: t(".title"), subtitle: t(".subtitle", chain: Onchain::Chains.find!(@chain).label, address: @address)) %>
+  <% wallet = @key_account ? OnchainWalletAccount.script_type_label(@key_account.script_type) : @address %>
+  <% dialog.with_header(title: t(".title"), subtitle: t(".subtitle", chain: Onchain::Chains.find!(@chain).label, address: wallet)) %>
 
   <% dialog.with_body do %>
     <%= render "onchain_wallet_items/token_review_form",
                chain: @chain,
                address: @address,
+               key_account: @key_account,
                review: @review,
                url: link_wallet_onchain_wallet_items_path,
                submit_label: t(".import_selected"),

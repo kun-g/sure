@@ -3,7 +3,7 @@
 require "test_helper"
 
 class Onchain::ChainsTest < ActiveSupport::TestCase
-  include OnchainTestHelper
+  include OnchainTestHelper, BitcoinExplorerTestHelper
 
   setup do
     register_fake_chain!
@@ -87,5 +87,17 @@ class Onchain::ChainsTest < ActiveSupport::TestCase
 
   test "asset_kinds lists native plus the token kind" do
     assert_equal [ "native", OnchainTestHelper::FAKE_TOKEN_KIND ], fake_chain.asset_kinds
+  end
+
+  test "a private key is recognized whatever chain it belongs to" do
+    assert Onchain::Chains.private_key?(BIP84_ZPRV)
+    assert_not Onchain::Chains.private_key?(BIP84_ZPUB)
+    assert_not Onchain::Chains.private_key?("0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045")
+  end
+
+  test "only Bitcoin accepts account keys, and no chain takes one for an address" do
+    assert_equal [ Onchain::Chains::BITCOIN ], Onchain::Chains.accepting_account_key(BIP84_XPUB).map(&:key)
+    assert_empty Onchain::Chains.accepting_account_key("bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq")
+    assert_empty Onchain::Chains.matching(BIP84_XPUB)
   end
 end

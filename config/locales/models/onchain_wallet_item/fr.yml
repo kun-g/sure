@@ -14,6 +14,11 @@ fr:
       solana: Solana
       tron: TRON
     institution_name: Portefeuilles en autoconservation
+    script_types:
+      p2pkh: "Historique (1…, BIP44)"
+      p2sh_p2wpkh: "SegWit imbriqué (3…, BIP49)"
+      p2tr: "Taproot (bc1p…, BIP86)"
+      p2wpkh: "SegWit natif (bc1q…, BIP84)"
   onchain_wallet_item:
     movement:
       received: "Réception de %{quantity} %{symbol}"

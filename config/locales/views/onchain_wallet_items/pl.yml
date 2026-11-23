@@ -8,6 +8,18 @@ pl:
       no_activity_found: Nic nie znaleziono
       subtitle: "%{address}"
       title: Która sieć?
+    choose_script_type:
+      continue: "Dalej"
+      errors:
+        known_address_mismatch: "Tego adresu nie ma wśród pierwszych adresów, które z tego klucza powstają dla tego rodzaju. Sprawdź, czy oba pochodzą z tego samego konta."
+        script_type_unsupported: "Tego klucza nie można użyć z tym rodzajem adresu."
+      explanation: "Z tego samego rozszerzonego klucza publicznego powstają inne adresy dla każdego rodzaju. Wybierz ten, którego pierwszy adres zgadza się z pierwszym adresem odbiorczym w Twoim portfelu; przy niewłaściwym portfel wyglądałby na pusty."
+      first_address: "Pierwszy adres odbiorczy: %{address}"
+      known_address_hint: "Dowolny z jego pierwszych 100 adresów odbiorczych lub adresów reszty. Jest tylko porównywany z adresami wynikającymi z klucza."
+      known_address_label: "Albo adres z tego portfela"
+      script_type_legend: "Rodzaj adresu"
+      subtitle: "Ten klucz nie mówi, których adresów używa jego portfel."
+      title: "Jaki rodzaj adresów?"
     destroy:
       success: Zaplanowano usunięcie połączenia portfela własnego.
     disconnect_asset:
@@ -24,11 +36,15 @@ pl:
       success: Ceny kryptowalut są włączone. Wartości portfela pojawią się po następnej
         synchronizacji.
     errors:
+      account_contains_tracked_address: "To konto obejmuje %{addresses}, który jest już śledzony osobno, więc jego monety byłyby liczone podwójnie. Przestań go śledzić w ustawieniach portfeli i usuń jego konto, a potem dodaj to."
+      address_in_tracked_account: "Ten adres należy do konta, które jest już śledzone przez rozszerzony klucz publiczny, więc jego monety są już liczone."
       address_required: Wpisz adres portfela.
       already_linked: Ten adres jest już śledzony w tej sieci. Użyj opcji Przejrzyj
         tokeny, aby zmienić śledzone aktywa.
       chain_unreachable: Nie udało się połączyć z publicznym eksploratorem tej sieci.
         Spróbuj ponownie za chwilę.
+      invalid_account_key: "Tego rozszerzonego klucza publicznego nie można użyć. Musi to być skopiowany w całości klucz konta sieci głównej (xpub, ypub lub zpub) eksportowany przez Twój portfel."
+      private_key: "To jest klucz prywatny. Nie został zapisany ani zalogowany, a Sure nigdy go nie potrzebuje. Użyj adresu albo rozszerzonego klucza publicznego konta (xpub, ypub lub zpub)."
       rate_limited: Publiczny eksplorator obecnie ogranicza liczbę żądań. Spróbuj
         ponownie za kilka minut.
       unexpected: Coś poszło nie tak podczas odczytu tego portfela. Szczegóły zostały
@@ -47,6 +63,7 @@ pl:
         one: Śledzenie 1 aktywa z tego portfela.
         other: Śledzenie %{count} aktywów z tego portfela.
     manage:
+      addresses_truncated: "Ten portfel ma więcej adresów, niż sprawdza jedna synchronizacja, więc jego saldo może być wyższe od pokazanego, a przelewy nie są importowane."
       assets_truncated: Ten adres posiada więcej tokenów, niż pokazuje jeden odczyt,
         więc wyświetlono tylko %{count} najbardziej wiarygodnych. Wszystko, co jest
         już śledzone, nadal się synchronizuje.
@@ -66,11 +83,10 @@ pl:
       subtitle: Każdy adres odczytywany przez to połączenie i co jest przy nim śledzone.
       title: Zarządzaj portfelami własnymi
     new_wallet:
-      address_label: Adres portfela
-      address_placeholder: bc1..., 0x... albo adres Solany
-      bitcoin_single_address_note: Bitcoin jest śledzony po jednym adresie naraz.
-        Klucze rozszerzone (xpub/ypub/zpub) nie są obsługiwane, więc portfel rozkładający
-        środki na adresy pochodne pokaże tylko saldo wpisanego adresu.
+      account_key_privacy_note: "Rozszerzony klucz publiczny nie pozwala wydawać środków, ale każdy, kto go ma, widzi wszystkie adresy konta. Jest przechowywany w postaci zaszyfrowanej, a wynikające z niego adresy są sprawdzane w eksploratorze bloków."
+      address_label: "Adres portfela lub rozszerzony klucz publiczny"
+      address_placeholder: "bc1..., xpub..., 0x... albo adres Solany"
+      bitcoin_single_address_note: "Adres Bitcoin pozwala śledzić tylko ten adres. Aby śledzić cały portfel, wklej rozszerzony klucz publiczny konta (xpub, ypub lub zpub): na jego podstawie zostaną znalezione i zsumowane adresy odbiorcze i adresy reszty."
       chain_auto_detect: Wykryj automatycznie
       chain_label: Sieć
       continue: Dalej
@@ -114,11 +130,13 @@ pl:
       assets_truncated: Ten adres posiada więcej tokenów, niż pokazuje jeden odczyt,
         więc wyświetlono tylko %{count} najbardziej wiarygodnych.
       cancel: Anuluj
+      check_first_address: "Sprawdź, czy to pierwszy adres odbiorczy w Twoim portfelu"
       explanation: Aktywa ze znaną ceną są zaznaczone. Reszta jest odznaczona — portfele
         zbierają spamowe airdropy, a śledzenie ich nie ma żadnej wartości.
       native: Natywne
       no_price: Brak dostępnej ceny, śledzone tylko ilościowo
       nothing_found: Ten adres nie zawiera niczego, co widzimy w tej sieci.
+      quantity_after_sync: "Odczyt przy pierwszej synchronizacji"
     update:
       success: Zaktualizowano połączenie portfela własnego.
     update_tokens:

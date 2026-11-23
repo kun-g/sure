@@ -156,7 +156,7 @@ pt-PT:
         etherscan_hint: As leituras do Ethereum funcionam sem chave. Adicionar uma chave Etherscan apenas aumenta o limite de frequência para o Ethereum.
         keep_etherscan_api_key: Deixe em branco para manter a chave existente
         manage_wallets: Gerir carteiras
-        keyless_body: O Sure apenas lê dados públicos da cadeia. Não estão envolvidas chaves, frases-semente ou assinaturas, e nada pode ser gasto.
+        keyless_body: O Sure apenas lê dados públicos da cadeia. Não estão envolvidas chaves privadas, frases-semente ou assinaturas, e nada pode ser gasto.
         keyless_title: Apenas leitura, sem necessidade de chaves
         save: Guardar
         sync_start_date_hint: As transferências anteriores a esta data são ignoradas. Deixe em branco para importar tudo o que o explorador reportar.

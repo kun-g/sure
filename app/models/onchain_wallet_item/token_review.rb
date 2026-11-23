@@ -9,7 +9,8 @@
 # indexer, a place on Solana's verified token list. Everything else is listed,
 # unchecked, and can still be tracked by quantity if the user wants it.
 class OnchainWalletItem::TokenReview
-  Row = Data.define(:asset, :key, :priceable, :tracked) do
+  # `quantity` is nil when nothing has read the wallet yet.
+  Row = Data.define(:asset, :key, :priceable, :tracked, :quantity) do
     def preselected?
       tracked || (priceable && asset.notable?)
     end
@@ -63,18 +64,16 @@ class OnchainWalletItem::TokenReview
 
     def row_for(asset)
       key = self.class.key_for(asset)
+      tracked = tracked_accounts.find { |account| account.asset_key == key }
 
       Row.new(
         asset: asset,
         key: key,
         priceable: Onchain::SecurityResolver.priceable?(asset.symbol),
-        tracked: tracked_keys.include?(key)
+        tracked: tracked.present?,
+        quantity: asset.quantity || tracked&.quantity
       )
     end
 
     attr_reader :snapshot, :tracked_accounts
-
-    def tracked_keys
-      @tracked_keys ||= tracked_accounts.map(&:asset_key)
-    end
 end
